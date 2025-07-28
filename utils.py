@@ -138,14 +138,14 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
         search_sql = """
         CREATE OR REPLACE CORTEX SEARCH SERVICE cortex_search_service_ocr
             ON final_chunk_ocr
-            ATTRIBUTES language, company_name, year
+            ATTRIBUTES language, COMPANY_NAME, year
             WAREHOUSE = top_200_wh
             TARGET_LAG = '1 hour'
             AS (
             SELECT
                 final_chunk_ocr,
                 relative_path,
-                company_name,
+                COMPANY_NAME,
                 year,
                 file_url,
                 language

@@ -16,7 +16,7 @@ def rag(query, company_name):
     
     # add <media_scan>
     media_scan_query=f"""select TOPIC_OF_DISQUALIFICATION from media_scan 
-    where ai_filter(PROMPT('company name {{0}} matches exactly with {{1}}', company_name,'{company_name}'))"""
+    where ai_filter(PROMPT('company name {{0}} matches exactly with {{1}}', COMPANY_NAME,'{company_name}'))"""
 
     result = session.sql(media_scan_query).to_pandas().to_xml(index=False, xml_declaration=False)
     query += f"""{query}
@@ -33,11 +33,11 @@ def rag(query, company_name):
         )
     columns = ['chunk',
             'relative_path',
-            'company_name',
+            'COMPANY_NAME',
             'year',
             'file_url',
             'language'] 
-    filter={"@and": [{"@eq": {"company_name": company_name}}]}
+    filter={"@and": [{"@eq": {"COMPANY_NAME": company_name}}]}
     context_documents = cortex_search_service.search(
         query, columns=columns, filter=filter, limit=5
     )

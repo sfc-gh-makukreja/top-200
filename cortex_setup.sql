@@ -192,7 +192,7 @@ CREATE OR REPLACE STREAMLIT  IDENTIFIER('"TOP_200_DB"."TOP_200_SCHEMA"."top_200_
   FROM '@"TOP_200_DB"."TOP_200_SCHEMA"."TOP_200_REPO"/branches/"main"/' 
   MAIN_FILE = 'streamlit_app.py'
   QUERY_WAREHOUSE = top_200_wh
-  TITLE = 'Top 200 Companies - Document Processing';
+  TITLE = 'Top 200 Companies';
 
 -- Show created objects
 SHOW GIT REPOSITORIES LIKE 'top_200_repo';

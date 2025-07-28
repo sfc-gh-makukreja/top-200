@@ -24,9 +24,9 @@ def get_all_media_scans(session: Session) -> pd.DataFrame:
     """Fetch all media scan records from the database."""
     try:
         result = session.sql("""
-            SELECT company_name, topic_of_disqualification
-            FROM deloitte_200_db.deloitte_200_schema.media_scan
-            ORDER BY company_name
+            SELECT COMPANY_NAME, TOPIC_OF_DISQUALIFICATION
+            FROM media_scan
+            ORDER BY COMPANY_NAME
         """).collect()
         
         if result:
@@ -43,9 +43,9 @@ def save_media_scan(session: Session, media_scan_data: Dict[str, Any], is_edit: 
         if is_edit and original_company_name:
             # Update existing record
             query = """
-                UPDATE deloitte_200_db.deloitte_200_schema.media_scan 
-                SET company_name = ?, topic_of_disqualification = ?
-                WHERE company_name = ?
+                UPDATE media_scan 
+                SET COMPANY_NAME = ?, TOPIC_OF_DISQUALIFICATION = ?
+                WHERE COMPANY_NAME = ?
             """
             params = [
                 media_scan_data['company_name'],
@@ -56,14 +56,14 @@ def save_media_scan(session: Session, media_scan_data: Dict[str, Any], is_edit: 
         else:
             # Insert new record (or replace if exists)
             query = """
-                MERGE INTO deloitte_200_db.deloitte_200_schema.media_scan AS target
-                USING (SELECT ? as company_name, ? as topic_of_disqualification) AS source
-                ON target.company_name = source.company_name
+                MERGE INTO media_scan AS target
+                USING (SELECT ? as COMPANY_NAME, ? as TOPIC_OF_DISQUALIFICATION) AS source
+                ON target.COMPANY_NAME = source.COMPANY_NAME
                 WHEN MATCHED THEN
-                    UPDATE SET topic_of_disqualification = source.topic_of_disqualification
+                    UPDATE SET TOPIC_OF_DISQUALIFICATION = source.TOPIC_OF_DISQUALIFICATION
                 WHEN NOT MATCHED THEN
-                    INSERT (company_name, topic_of_disqualification) 
-                    VALUES (source.company_name, source.topic_of_disqualification)
+                    INSERT (COMPANY_NAME, TOPIC_OF_DISQUALIFICATION) 
+                    VALUES (source.COMPANY_NAME, source.TOPIC_OF_DISQUALIFICATION)
             """
             params = [
                 media_scan_data['company_name'],
@@ -80,7 +80,7 @@ def delete_media_scan(session: Session, company_name: str) -> bool:
     """Delete media scan record from the database."""
     try:
         session.sql(
-            "DELETE FROM deloitte_200_db.deloitte_200_schema.media_scan WHERE company_name = ?", 
+            "DELETE FROM media_scan WHERE COMPANY_NAME = ?", 
             [company_name]
         ).collect()
         return True
