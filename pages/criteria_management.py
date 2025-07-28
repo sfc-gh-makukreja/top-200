@@ -132,9 +132,30 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
     
     # Use existing data if editing
     if existing_data:
-        defaults.update(existing_data)
+        # Map database column names to form field names
+        field_mapping = {
+            'ID': 'id',
+            'QUESTION': 'question', 
+            'CLUSTER': 'cluster',
+            'ROLE': 'role',
+            'INSTRUCTIONS': 'instructions',
+            'OUTPUT': 'output',
+            'CRITERIA_PROMPT': 'criteria_prompt',
+            'WEIGHT': 'weight',
+            'VERSION': 'version',
+            'ACTIVE': 'active'
+        }
+        
+        for db_field, form_field in field_mapping.items():
+            if db_field in existing_data and existing_data[db_field] is not None:
+                defaults[form_field] = existing_data[db_field]
+        
+        # Special handling for CLUSTER field
         if 'CLUSTER' in existing_data and existing_data['CLUSTER']:
-            defaults['cluster'] = ', '.join(existing_data['CLUSTER']) if isinstance(existing_data['CLUSTER'], list) else str(existing_data['CLUSTER'])
+            if isinstance(existing_data['CLUSTER'], list):
+                defaults['cluster'] = ', '.join(existing_data['CLUSTER'])
+            else:
+                defaults['cluster'] = str(existing_data['CLUSTER'])
     
     with st.form("criteria_form"):
         # ID field at the top
@@ -403,7 +424,15 @@ def main():
     
     # Show edit form if in edit mode
     elif st.session_state.edit_mode and st.session_state.selected_criteria:
-        st.subheader("Edit Criteria")
+        st.subheader(f"✏️ Edit Criteria: {st.session_state.selected_criteria.get('ID', 'Unknown')}")
+        
+        # Add cancel button
+        col_edit1, col_edit2 = st.columns([1, 4])
+        with col_edit1:
+            if st.button("❌ Cancel Edit"):
+                st.session_state.edit_mode = False
+                st.session_state.selected_criteria = None
+                st.rerun()
         
         form_data = criteria_form(st.session_state.selected_criteria)
         
@@ -414,7 +443,8 @@ def main():
                 st.session_state.selected_criteria = None
                 time.sleep(1)
                 st.rerun()
-        elif form_data is None:
+        elif form_data is None and not st.session_state.edit_mode:
+            # Form was cancelled
             st.session_state.edit_mode = False
             st.session_state.selected_criteria = None
             st.rerun()
@@ -489,8 +519,15 @@ def main():
                     # Edit button
                     if st.button(f"✏️ Edit", key=f"edit_{row['ID']}"):
                         st.session_state.edit_mode = True
-                        st.session_state.selected_criteria = row.to_dict()
+                        # Convert pandas Series to dict and ensure proper data types
+                        selected_data = row.to_dict()
+                        # Ensure CLUSTER is properly formatted
+                        if 'CLUSTER' in selected_data and selected_data['CLUSTER']:
+                            if isinstance(selected_data['CLUSTER'], list):
+                                selected_data['CLUSTER'] = ', '.join(selected_data['CLUSTER'])
+                        st.session_state.selected_criteria = selected_data
                         st.session_state.show_add_form = False
+                        st.session_state.show_upload = False
                         st.rerun()
                     
                     # Toggle status button
@@ -501,15 +538,26 @@ def main():
                             time.sleep(1)
                             st.rerun()
                     
-                    # Delete button
-                    if st.button(f"🗑️ Delete", key=f"delete_{row['ID']}", type="secondary"):
-                        if st.button(f"⚠️ Confirm Delete", key=f"confirm_delete_{row['ID']}", type="secondary"):
-                            if delete_criteria(session, row['ID']):
-                                st.success("✅ Criteria deleted!")
-                                time.sleep(1)
+                    # Delete button with confirmation
+                    delete_key = f"delete_pending_{row['ID']}"
+                    if not st.session_state.get(delete_key, False):
+                        if st.button(f"🗑️ Delete", key=f"delete_{row['ID']}", type="secondary"):
+                            st.session_state[delete_key] = True
+                            st.rerun()
+                    else:
+                        st.warning("⚠️ Confirm deletion:")
+                        col_del1, col_del2 = st.columns(2)
+                        with col_del1:
+                            if st.button(f"✅ Yes", key=f"confirm_delete_{row['ID']}", type="primary"):
+                                if delete_criteria(session, row['ID']):
+                                    st.success("✅ Criteria deleted!")
+                                    st.session_state[delete_key] = False
+                                    time.sleep(1)
+                                    st.rerun()
+                        with col_del2:
+                            if st.button(f"❌ No", key=f"cancel_delete_{row['ID']}", type="secondary"):
+                                st.session_state[delete_key] = False
                                 st.rerun()
-                        else:
-                            st.warning("Click 'Confirm Delete' to permanently delete this criteria")
     
     else:
         st.info("No criteria found. Add your first criteria using the 'Add New' button above.")
