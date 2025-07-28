@@ -13,6 +13,9 @@ st.set_page_config(
     layout="wide"
 )
 
+# Configuration
+STAGE_NAME = "stage"
+
 def get_snowflake_session() -> Session:
     """Initialize Snowflake session using Streamlit connection."""
     try:
@@ -129,9 +132,6 @@ def main():
     
     # Initialize session
     session = get_snowflake_session()
-    
-    # Configuration
-    STAGE_NAME = "stage"
     
     # Create tabs for different views
     tab1, tab2, tab3 = st.tabs(["Upload Files", "Stage Files", "Processed Files"])
