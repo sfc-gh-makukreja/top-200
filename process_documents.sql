@@ -16,7 +16,7 @@
 CREATE OR REPLACE TABLE cortex_parsed_docs AS
 SELECT 
     relative_path,
-    build_scoped_file_url(@top_200_db.top_200_schema.stage, relative_path) AS file_url,
+    build_scoped_file_url(@stage, relative_path) AS file_url,
     
     -- Use AI to extract company name from filename
     ai_complete('snowflake-llama-3.3-70b',
@@ -28,14 +28,14 @@ SELECT
 
     -- Extract text content using native Snowflake OCR parsing
     SNOWFLAKE.CORTEX.PARSE_DOCUMENT(
-        '@top_200_db.top_200_schema.stage', 
+        '@stage', 
         relative_path
     ) AS parsed_content_ocr,
     
     -- Add processing metadata
     CURRENT_TIMESTAMP() AS processed_at
 
-FROM directory(@top_200_db.top_200_schema.stage)
+FROM directory(@stage)
 WHERE UPPER(relative_path) LIKE '%.PDF';
 
 -- ================================================================
@@ -91,7 +91,7 @@ DROP CORTEX SEARCH SERVICE IF EXISTS cortex_search_service_ocr;
 CREATE CORTEX SEARCH SERVICE cortex_search_service_ocr
     ON final_chunk_ocr
     ATTRIBUTES language, company_name, year
-    WAREHOUSE = top_200_wh
+    WAREHOUSE = CURRENT_WAREHOUSE()
     TARGET_LAG = '1 hour'
     AS (
     SELECT
@@ -111,14 +111,15 @@ CREATE CORTEX SEARCH SERVICE cortex_search_service_ocr
 -- Return summary statistics about the processing results
 -- ================================================================
 
+-- Verify table exists and get summary
 SELECT 
     'Processing Complete' AS status,
-    COUNT(DISTINCT relative_path) AS total_files_processed,
-    COUNT(*) AS total_chunks_created,
+    COALESCE(COUNT(DISTINCT relative_path), 0) AS total_files_processed,
+    COALESCE(COUNT(*), 0) AS total_chunks_created,
     MIN(processed_at) AS processing_started,
     MAX(chunked_at) AS processing_completed,
-    ROUND(AVG(LENGTH(ocr_content)), 0) AS avg_document_length,
-    ROUND(AVG(LENGTH(chunk_value_ocr)), 0) AS avg_chunk_length
+    COALESCE(ROUND(AVG(LENGTH(ocr_content)), 0), 0) AS avg_document_length,
+    COALESCE(ROUND(AVG(LENGTH(chunk_value_ocr)), 0), 0) AS avg_chunk_length
 FROM cortex_docs_chunks_table;
 
 -- ================================================================
@@ -136,7 +137,7 @@ FROM cortex_docs_chunks_table;
 --         ELSE 'Processed successfully'
 --     END AS status
 -- FROM (
---     SELECT relative_path FROM directory(@top_200_db.top_200_schema.stage)
+--     SELECT relative_path FROM directory(@stage)
 --     WHERE UPPER(relative_path) LIKE '%.PDF'
 -- ) stage_files
 -- LEFT JOIN cortex_parsed_docs parsed ON stage_files.relative_path = parsed.relative_path
