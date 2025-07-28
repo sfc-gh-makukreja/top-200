@@ -168,8 +168,8 @@ CREATE OR REPLACE GIT REPOSITORY top_200_repo
 -- SELECT SYSTEM$GIT_REPOSITORY_VALIDATE('top_200_repo') AS git_validation_status;
 
 -- Create Streamlit app from Git repository
-CREATE OR REPLACE STREAMLIT top_200_app
-  FROM @top_200_repo/branches/main/
+CREATE OR REPLACE STREAMLIT  IDENTIFIER('"TOP_200_DB"."TOP_200_SCHEMA"."top_200_app"') 
+  FROM '@"TOP_200_DB"."TOP_200_SCHEMA"."TOP_200_REPO"/branches/"main"/' 
   MAIN_FILE = 'streamlit_app.py'
   QUERY_WAREHOUSE = top_200_wh
   TITLE = 'Top 200 Companies - Document Processing';
