@@ -34,16 +34,13 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             build_scoped_file_url(@stage, relative_path) AS file_url,
             
             -- Use AI to extract company name from filename
-            SNOWFLAKE.CORTEX.COMPLETE('llama3-8b',
-                'Extract only the company name from this filename: ' || relative_path || '. Return just the company name.'
-            ) as company_name,
+            ai_complete('snowflake-llama-3.3-70b',
+                concat('extract ONLY company name from the filename, do not return anything else, just the name or empty string: ', relative_path))::string as company_name,
             
-            -- Use AI to extract report year from filename  
-            TRY_CAST(
-                SNOWFLAKE.CORTEX.COMPLETE('llama3-8b',
-                    'Extract only the year from this filename: ' || relative_path || '. Return just the 4-digit year.'
-                ) AS INTEGER
-            ) as year,
+            -- Use AI to extract report year from filename
+            ai_complete('snowflake-llama-3.3-70b',
+                concat('extract ONLY annual report year from the filename, do not return anything else, just the year of form YYYY or empty string: ', relative_path))::integer as year,
+
 
             -- Extract text content using Cortex OCR
             SNOWFLAKE.CORTEX.PARSE_DOCUMENT('@stage', relative_path) AS parsed_content_ocr,
