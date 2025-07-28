@@ -90,7 +90,16 @@ def save_criteria(session: Session, criteria_data: Dict[str, Any], is_edit: bool
             query = f"""
                 INSERT INTO input_criteria 
                 (id, question, cluster, role, instructions, output, criteria_prompt, weight, version, active)
-                VALUES (?, ?, {cluster_sql}, ?, ?, ?, ?, ?, ?, ?)
+                SELECT ? as id,
+                       ? as question, 
+                       {cluster_sql} as cluster,
+                       ? as role, 
+                       ? as instructions,
+                       ? as output,
+                       ? as criteria_prompt,
+                       ? as weight,
+                       ? as version,
+                       ? as active
             """
             params += [
                 criteria_data['role'],
