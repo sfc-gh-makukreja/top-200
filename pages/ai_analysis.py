@@ -61,9 +61,9 @@ def get_available_companies():
     try:
         session = st.connection("snowflake").session()
         result = session.sql("""
-            SELECT DISTINCT company_name 
+            SELECT DISTINCT COMPANY_NAME 
             FROM cortex_docs_chunks_table 
-            ORDER BY company_name
+            ORDER BY COMPANY_NAME
         """).collect()
         return [row['COMPANY_NAME'] for row in result]
     except Exception as e:
@@ -76,23 +76,23 @@ def get_active_criteria():
         session = st.connection("snowflake").session()
         result = session.sql("""
             SELECT 
-                criteria_id,
-                criteria_version,
-                criteria_prompt,
-                question
+                ID,
+                VERSION,
+                CRITERIA_PROMPT,
+                QUESTION
             FROM input_criteria 
-            WHERE active = TRUE
-            ORDER BY criteria_id, criteria_version
+            WHERE ACTIVE = TRUE
+            ORDER BY ID, VERSION
         """).collect()
         
         criteria_list = []
         for row in result:
             criteria_list.append({
-                'id': row['CRITERIA_ID'],
-                'version': row['CRITERIA_VERSION'],
+                'id': row['ID'],
+                'version': row['VERSION'],
                 'prompt': row['CRITERIA_PROMPT'],
                 'question': row['QUESTION'],
-                'display_name': f"{row['CRITERIA_ID']} ({row['CRITERIA_VERSION']})"
+                'display_name': f"{row['ID']} ({row['VERSION']})"
             })
         return criteria_list
     except Exception as e:
@@ -127,15 +127,15 @@ def main():
             # Get recent runs
             recent_runs = session.sql("""
             SELECT 
-                run_id,
-                COUNT(DISTINCT criteria_id) as criteria_count,
-                COUNT(DISTINCT data_source) as companies_analyzed,
+                RUN_ID,
+                COUNT(DISTINCT CRITERIA_ID) as criteria_count,
+                COUNT(DISTINCT DATA_SOURCE) as companies_analyzed,
                 COUNT(*) as total_analyses,
-                MIN(output:timestamp::string) as run_timestamp
+                MIN(OUTPUT:timestamp::string) as run_timestamp
             FROM cortex_output 
-            WHERE run_id IS NOT NULL
-            GROUP BY run_id
-            ORDER BY MIN(output:timestamp::timestamp_ntz) DESC
+            WHERE RUN_ID IS NOT NULL
+            GROUP BY RUN_ID
+            ORDER BY MIN(OUTPUT:timestamp::timestamp_ntz) DESC
             LIMIT 10
             """).collect()
             
@@ -165,17 +165,17 @@ def main():
                     # Display detailed results for selected run
                     detailed_results = session.sql(f"""
                     SELECT 
-                        criteria_id,
-                        criteria_version,
-                        data_source as company,
-                        question,
-                        result,
-                        justification,
-                        evidence,
-                        output:timestamp::string as timestamp
+                        CRITERIA_ID,
+                        CRITERIA_VERSION,
+                        DATA_SOURCE as company,
+                        QUESTION,
+                        RESULT,
+                        JUSTIFICATION,
+                        EVIDENCE,
+                        OUTPUT:timestamp::string as timestamp
                     FROM cortex_output 
-                    WHERE run_id = '{selected_run}'
-                    ORDER BY criteria_id, data_source
+                    WHERE RUN_ID = '{selected_run}'
+                    ORDER BY CRITERIA_ID, DATA_SOURCE
                     """).collect()
                     
                     if detailed_results:
@@ -567,16 +567,16 @@ def run_analysis(selected_criteria, companies):
                 try:
                     db_results = session.sql(f"""
                     SELECT 
-                        criteria_id,
-                        criteria_version,
-                        data_source as company,
-                        question,
-                        result,
-                        justification,
-                        output:timestamp::string as timestamp
+                        CRITERIA_ID,
+                        CRITERIA_VERSION,
+                        DATA_SOURCE as company,
+                        QUESTION,
+                        RESULT,
+                        JUSTIFICATION,
+                        OUTPUT:timestamp::string as timestamp
                     FROM cortex_output 
-                    WHERE run_id = '{run_id}'
-                    ORDER BY criteria_id, data_source
+                    WHERE RUN_ID = '{run_id}'
+                    ORDER BY CRITERIA_ID, DATA_SOURCE
                     """).collect()
                     
                     if db_results:
