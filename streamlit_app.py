@@ -4,6 +4,7 @@ from snowflake.snowpark import Session
 import time
 import os
 from typing import List, Dict, Any
+from document_processor import process_all_documents as process_docs, get_processing_summary
 
 # Page configuration
 st.set_page_config(
@@ -20,24 +21,7 @@ def get_snowflake_session() -> Session:
         st.error(f"Failed to connect to Snowflake: {e}")
         st.stop()
 
-def execute_sql_file(session: Session, sql_file: str, params: Dict[str, Any] = None) -> bool:
-    """Execute SQL commands from a file with error handling."""
-    try:
-        # Read SQL file content
-        with open(sql_file, 'r') as f:
-            sql_content = f.read()
-        
-        # Replace parameters if provided
-        if params:
-            for key, value in params.items():
-                sql_content = sql_content.replace(f'{{{key}}}', str(value))
-        
-        # Execute SQL
-        session.sql(sql_content).collect()
-        return True
-    except Exception as e:
-        st.error(f"SQL execution error: {e}")
-        return False
+# Note: Using Python-based document processing instead of SQL files
 
 def upload_file_to_stage(session: Session, uploaded_file, stage_name: str) -> bool:
     """Upload file to Snowflake stage."""
@@ -94,68 +78,49 @@ def get_processed_files(session: Session) -> pd.DataFrame:
         return pd.DataFrame()
 
 def process_all_documents(session: Session) -> None:
-    """Process all PDF documents in the stage using the SQL processing pipeline."""
+    """Process all PDF documents in the stage using the Python processing pipeline."""
     
+    # Check if there are files to process
+    stage_files = get_stage_files(session, STAGE_NAME)
+    pdf_files = stage_files[stage_files['name'].str.upper().str.endswith('.PDF')] if not stage_files.empty else pd.DataFrame()
+    
+    if pdf_files.empty:
+        st.warning("No PDF files found in stage to process")
+        return
+    
+    st.info(f"📄 Found {len(pdf_files)} PDF files to process")
+    
+    # Process documents using the Python processor
     with st.spinner("Processing documents..."):
-        progress_placeholder = st.empty()
+        results = process_docs(session)
         
-        try:
-            # Check if there are files to process
-            stage_files = get_stage_files(session, "top_200_db.top_200_schema.stage")
-            pdf_files = stage_files[stage_files['name'].str.upper().str.endswith('.PDF')] if not stage_files.empty else pd.DataFrame()
+        if results['success']:
+            st.success("✅ Processing completed successfully!")
             
-            if pdf_files.empty:
-                st.warning("No PDF files found in stage to process")
-                return
+            # Display progress messages
+            for message in results['messages']:
+                st.info(message)
             
-            progress_placeholder.info(f"📄 Found {len(pdf_files)} PDF files to process")
-            
-            # Execute the processing SQL file
-            progress_placeholder.info("🔄 Step 1: Parsing documents with Cortex...")
-            
-            # Read and execute the processing SQL
-            with open("process_documents.sql", 'r') as f:
-                sql_content = f.read()
-            
-            # Split SQL into individual statements and execute
-            sql_statements = [stmt.strip() for stmt in sql_content.split(';') if stmt.strip() and not stmt.strip().startswith('--')]
-            
-            for i, statement in enumerate(sql_statements):
-                if statement.upper().startswith('SELECT'):
-                    # This is likely the summary query at the end
-                    progress_placeholder.info("📊 Getting processing summary...")
-                    result = session.sql(statement).collect()
-                    if result:
-                        summary = result[0].as_dict()
-                        st.success("✅ Processing completed successfully!")
-                        
-                        # Display summary metrics
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric("Files Processed", summary.get('TOTAL_FILES_PROCESSED', 0))
-                        with col2:
-                            st.metric("Text Chunks Created", summary.get('TOTAL_CHUNKS_CREATED', 0))
-                        with col3:
-                            st.metric("Avg Document Length", f"{summary.get('AVG_DOCUMENT_LENGTH', 0):,.0f} chars")
-                        
-                        break
-                else:
-                    # Execute other statements
-                    session.sql(statement).collect()
-                    
-                    # Update progress based on statement type
-                    if 'cortex_parsed_docs' in statement.lower():
-                        progress_placeholder.info("🔄 Step 2: Extracting text content...")
-                    elif 'cortex_docs_chunks_table' in statement.lower():
-                        progress_placeholder.info("🔄 Step 3: Creating searchable chunks...")
-                    elif 'cortex_search_service' in statement.lower():
-                        progress_placeholder.info("🔄 Step 4: Updating search index...")
+            # Display summary metrics
+            summary = get_processing_summary(session)
+            if summary:
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Files Processed", summary.get('TOTAL_FILES_PROCESSED', 0))
+                with col2:
+                    st.metric("Text Chunks Created", summary.get('TOTAL_CHUNKS_CREATED', 0))
+                with col3:
+                    st.metric("Avg Document Length", f"{summary.get('AVG_DOCUMENT_LENGTH', 0):,.0f} chars")
             
             st.balloons()
             
-        except Exception as e:
-            st.error(f"❌ Processing failed: {e}")
-            st.info("Please check the logs and try again")
+        else:
+            st.error(f"❌ Processing failed: {results['error']}")
+            st.info(f"Completed {results['steps_completed']}/{results['total_steps']} steps")
+            
+            # Show any partial progress
+            for message in results['messages']:
+                st.info(message)
 
 # Main app
 def main():
@@ -166,7 +131,7 @@ def main():
     session = get_snowflake_session()
     
     # Configuration
-    STAGE_NAME = "top_200_db.top_200_schema.stage"
+    STAGE_NAME = "stage"
     
     # Create tabs for different views
     tab1, tab2, tab3 = st.tabs(["Upload Files", "Stage Files", "Processed Files"])
