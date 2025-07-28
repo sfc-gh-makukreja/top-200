@@ -8,7 +8,7 @@ from document_processor import process_all_documents as process_docs, get_proces
 
 # Page configuration
 st.set_page_config(
-    page_title="Top 200 Companies - Document Upload",
+    page_title="Top 200 Companies - Document Processing",
     page_icon="📄",
     layout="wide"
 )
@@ -127,6 +127,24 @@ def process_all_documents(session: Session) -> None:
 
 # Main app
 def main():
+    # Sidebar navigation info
+    with st.sidebar:
+        st.title("🏢 Top 200 App")
+        st.markdown("### 📑 Available Pages")
+        st.markdown("- **Document Processing** (Current)")
+        st.markdown("- **Criteria Management** (Go to pages → criteria_management)")
+        st.markdown("- **Help & Documentation** (Go to pages → help)")
+        st.markdown("---")
+        st.markdown("### 💡 Quick Help")
+        st.markdown("1. Upload PDF documents")
+        st.markdown("2. Process them with AI")  
+        st.markdown("3. Manage evaluation criteria")
+        st.markdown("4. Run analysis queries")
+        st.markdown("---")
+        st.markdown("### 🆕 New Features")
+        st.success("✨ **Criteria Management** - Define custom evaluation criteria for AI analysis")
+        st.info("📚 **Help Documentation** - Complete user guide available")
+    
     st.title("📄 Document Upload & Processing")
     st.markdown("Upload annual reports and make them searchable with Snowflake Cortex AI")
     

@@ -158,8 +158,28 @@ CREATE CORTEX SEARCH SERVICE IF NOT EXISTS cortex_search_service_ocr
 -- SECTION 7: GIT INTEGRATION & STREAMLIT APP
 -- Create Git repository and deploy Streamlit app from Git
 -- ================================================================
+-- Instructions for manual setup for Secret and API Integration: https://docs.snowflake.com/en/developer-guide/git/git-setting-up#configure-for-authenticating-with-a-token
+-- 1. Create a Secret for your Git Personal Access Token (PAT).
+--    Example (run as ACCOUNTADMIN or role with CREATE SECRET privilege):
+--    CREATE OR REPLACE SECRET sfc_gh_makukreja_pat
+--      TYPE = PASSWORD
+--      USERNAME = 'sfc-gh-makukreja'  -- Replace with your Git username
+--      PASSWORD = 'github_pat_xxx';  -- Replace with your Git PAT https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token
 
--- Create Git repository (assumes SFC_GH_MAKUKREJA_INTEGRATION exists)
+-- 2. Create an API Integration for your Git provider.
+--    Example (run as ACCOUNTADMIN or role with CREATE INTEGRATION privilege):
+--    CREATE OR REPLACE API INTEGRATION sfc_gh_makukreja_integration
+--      API_PROVIDER = git_https_api
+--      API_ALLOWED_PREFIXES = ('https://github.com/sfc-gh-makukreja') -- Adjust for your Git provider & org/user
+--      ALLOWED_AUTHENTICATION_SECRETS = ('sfc_gh_makukreja_pat') -- Must match the secret name from step 1
+--      ENABLED = TRUE;
+
+-- 3. Grant USAGE on the API Integration and READ on the Secret to top_200_role.
+--    Example (run as ACCOUNTADMIN or role that owns the integration/secret):
+--    GRANT USAGE ON INTEGRATION sfc_gh_makukreja_integration TO ROLE top_200_role;
+--    GRANT READ ON SECRET sfc_gh_makukreja_pat TO ROLE top_200_role;
+
+-- Create Git repository (assumes SFC_GH_MAKUKREJA_INTEGRATION exists, if not create it first see instructions above)
 CREATE OR REPLACE GIT REPOSITORY top_200_repo
   API_INTEGRATION = SFC_GH_MAKUKREJA_INTEGRATION
   ORIGIN = 'https://github.com/sfc-gh-makukreja/top-200.git';
@@ -181,6 +201,10 @@ SHOW STREAMLITS LIKE 'top_200_app';
 -- Display success message
 SELECT 'Git integration and Streamlit app created successfully!' as status,
        'Navigate to Snowsight → Streamlit to access your app' as next_step;
+
+-- once new code is pushed to the repo, run the following command to pull the latest changes
+-- ALTER STREAMLIT "TOP_200_DB"."TOP_200_SCHEMA"."top_200_app" COMMIT;
+-- ALTER STREAMLIT "TOP_200_DB"."TOP_200_SCHEMA"."top_200_app" PULL;
 
 -- ================================================================
 -- SECTION 8: TESTING AND VALIDATION

@@ -35,25 +35,50 @@ Navigate to Snowsight → Streamlit → top_200_app
 ### 6. Verify Processing
 Check the "Processed Files" tab to see searchable documents.
 
+### 7. Manage Criteria (Optional)
+1. Navigate to pages → criteria_management
+2. Define evaluation criteria for AI analysis
+3. Set up prompts for automated document evaluation
+
+### 8. Load Sample Criteria (Optional)
+To get started with pre-built criteria examples:
+```sql
+-- In Snowflake, run:
+@complete_criteria_extraction.sql
+```
+
 ## Features
 
 - **Git Integration**: Automatic deployment from GitHub repository
 - **File Upload**: Drag-and-drop PDF upload to Snowflake stage
 - **Document Processing**: Automatic parsing, text extraction, and chunking
+- **Criteria Management**: Define and manage evaluation criteria for AI analysis
 - **Search Ready**: Creates Cortex Search Service for semantic search
+- **Multi-Page Interface**: Organized navigation with specialized pages
 - **Progress Tracking**: Real-time status updates during processing
+- **Help Documentation**: Complete user guide and troubleshooting
 - **Error Handling**: Graceful handling of processing failures
 
 ## File Structure
 
 ```
 ├── streamlit_app.py          # Main Streamlit application
+├── pages/
+│   ├── criteria_management.py # Criteria definition and management
+│   └── help.py               # User documentation and help
 ├── process_documents.sql     # Document processing pipeline
 ├── cortex_setup.sql         # Infrastructure setup with Git integration
+├── complete_criteria_extraction.sql # Complete evaluation criteria with extracted tags
 ├── environment.yml          # Snowflake dependencies
 ├── deploy.sh               # Deployment script
 └── requirements.md         # Project requirements
 ```
+
+## Available Pages
+
+- **Document Processing** (main): Upload and process PDF documents
+- **Criteria Management**: Define evaluation criteria for AI analysis
+- **Help & Documentation**: Complete user guide and troubleshooting
 
 ## Dependencies
 
