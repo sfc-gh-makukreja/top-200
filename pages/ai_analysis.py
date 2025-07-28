@@ -29,7 +29,7 @@ def rag(query, company_name):
     cortex_search_service = (
             root.databases['top_200_db']
             .schemas['top_200_schema']
-            .cortex_search_services['cortex_search_service']
+            .cortex_search_services['cortex_search_service_ocr']
         )
     columns = ['chunk',
             'relative_path',

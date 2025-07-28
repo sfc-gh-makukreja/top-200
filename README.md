@@ -1,6 +1,6 @@
 # Top 200 Companies - AI Analysis Platform
 
-A comprehensive multi-page Streamlit application for uploading annual reports, managing evaluation criteria, and conducting AI-powered ESG analysis using Snowflake Cortex.
+A comprehensive multi-page Streamlit application for uploading annual reports, managing evaluation criteria, tracking media scan data, and conducting AI-powered ESG analysis using Snowflake Cortex.
 
 ## Architecture
 
@@ -8,6 +8,8 @@ A comprehensive multi-page Streamlit application for uploading annual reports, m
 - `streamlit_app.py` - Landing page and navigation hub
 - `pages/document_processing.py` - Document upload and processing functionality
 - `pages/criteria_management.py` - Evaluation criteria definition and management
+- `pages/media_scan_management.py` - Media scan records and disqualification tracking
+- `pages/ai_analysis.py` - AI-powered document analysis and evaluation
 - `pages/help.py` - User documentation and help
 - `process_documents.sql` - Document processing pipeline (parsing, chunking, indexing)
 - `cortex_setup.sql` - Infrastructure setup (database, tables, roles, Git integration)
@@ -29,6 +31,8 @@ Navigate to Snowsight → Streamlit → top_200_app
 - **Home Page**: Platform overview and system status
 - **Document Processing**: Upload and process PDF documents
 - **Criteria Management**: Define evaluation criteria
+- **Media Scan Management**: Track company disqualification topics
+- **AI Analysis**: Automated ESG evaluation with RAG
 - **Help**: Complete documentation
 
 ### 5. Upload Documents
@@ -57,6 +61,13 @@ Import the complete Deloitte criteria set:
 2. Upload the provided `20250723_input_criteria.csv`
 3. All 15 criteria with populated ROLE and OUTPUT fields will be imported
 
+### 10. Manage Media Scan Data
+Track company disqualification topics:
+1. Navigate to **Media Scan Management** page
+2. Add individual records or use bulk CSV upload
+3. Monitor companies with negative media coverage
+4. Use the data in AI analysis for comprehensive evaluation
+
 ## Features
 
 - **Multi-Page Navigation**: Organized interface with specialized functionality
@@ -64,7 +75,9 @@ Import the complete Deloitte criteria set:
 - **Git Integration**: Automatic deployment from GitHub repository
 - **Document Processing**: Complete PDF upload, parsing, and AI preparation
 - **Criteria Management**: Full CRUD operations for evaluation criteria
-- **Bulk Upload**: CSV import for multiple criteria with ARRAY support
+- **Media Scan Management**: Track company disqualification topics and negative media coverage
+- **AI Analysis**: RAG-based document evaluation with media scan integration
+- **Bulk Upload**: CSV import for criteria and media scan data with validation
 - **Search Ready**: Creates Cortex Search Service for semantic search
 - **Progress Tracking**: Real-time status updates during processing
 - **Help Documentation**: Complete user guide and troubleshooting
@@ -78,6 +91,8 @@ Import the complete Deloitte criteria set:
 ├── pages/
 │   ├── document_processing.py # Document upload and processing
 │   ├── criteria_management.py # Criteria definition and management  
+│   ├── media_scan_management.py # Media scan records and disqualification tracking
+│   ├── ai_analysis.py         # AI-powered document analysis with RAG
 │   └── help.py               # User documentation and help
 ├── utils.py                # Python utilities and document processing engine
 ├── process_documents.sql    # SQL document processing pipeline
@@ -92,7 +107,7 @@ Import the complete Deloitte criteria set:
 
 ### 🏠 **Home (streamlit_app.py)**
 - Platform overview and feature summary
-- System status monitoring (database, documents, criteria)
+- System status monitoring (database, documents, criteria, media scans)
 - Quick navigation links
 - Getting started guide
 
@@ -107,6 +122,19 @@ Import the complete Deloitte criteria set:
 - Form-based criteria definition with ID, role, instructions
 - Bulk CSV upload with ARRAY type support
 - Complete Deloitte methodology criteria included
+
+### 📰 **Media Scan Management**
+- Track company disqualification topics and negative media coverage
+- Create, read, update, delete media scan records
+- Search and filter by company name or topic keywords
+- Bulk CSV upload with format validation
+- Visual status indicators (clean, issues found, no media)
+
+### 🔍 **AI Analysis**
+- RAG-based document analysis with semantic search
+- Media scan integration for comprehensive evaluation
+- Evidence-based AI scoring and justification
+- Company-specific analysis with context retrieval
 
 ### 📚 **Help & Documentation**
 - Complete user guide and troubleshooting
@@ -144,9 +172,10 @@ All dependencies are from the Snowflake Anaconda channel:
 
 ## Next Steps
 
-This foundation supports adding:
-- **AI Analysis Engine**: Automated document evaluation with criteria
-- **Results Dashboard**: Scoring and evidence presentation
-- **Advanced Search**: Multi-criteria document filtering
-- **Export Capabilities**: Report generation and data export
-- **User Management**: Role-based access and permissions 
+This comprehensive platform supports adding:
+- **Results Dashboard**: Enhanced scoring visualization and evidence presentation
+- **Advanced Search**: Multi-criteria document filtering and cross-referencing
+- **Export Capabilities**: Report generation and comprehensive data export
+- **User Management**: Role-based access and permissions
+- **Analytics Dashboard**: Performance metrics and analysis trends
+- **Automated Workflows**: Scheduled processing and notifications 

@@ -16,6 +16,7 @@ def main():
         st.markdown("- **🏠 Home** (Current)")
         st.markdown("- **📄 Document Processing**")
         st.markdown("- **📋 Criteria Management**")
+        st.markdown("- **📰 Media Scan Management**")
         st.markdown("- **🔍 AI Analysis**")
         st.markdown("- **📚 Help & Documentation**")
         st.markdown("---")
@@ -24,6 +25,8 @@ def main():
             st.switch_page("pages/document_processing.py")
         if st.button("📋 Manage Criteria", type="secondary"):
             st.switch_page("pages/criteria_management.py")
+        if st.button("📰 Media Scan", type="secondary"):
+            st.switch_page("pages/media_scan_management.py")
         if st.button("🔍 AI Analysis", type="secondary"):
             st.switch_page("pages/ai_analysis.py")
         if st.button("📚 View Help", type="secondary"):
@@ -34,7 +37,7 @@ def main():
     st.markdown("### Welcome to the comprehensive AI-powered analysis platform for evaluating company sustainability and ESG performance.")
     
     # Feature overview
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     
     with col1:
         st.markdown("""
@@ -46,6 +49,16 @@ def main():
         """)
         if st.button("Start Processing", key="doc_process"):
             st.switch_page("pages/document_processing.py")
+        
+        st.markdown("""
+        ### 📰 Media Scan Management
+        - Track company disqualification topics
+        - Manage negative media coverage
+        - Bulk upload from CSV
+        - Export and audit records
+        """)
+        if st.button("Manage Media Scan", key="media_scan_mgmt"):
+            st.switch_page("pages/media_scan_management.py")
     
     with col2:
         st.markdown("""
@@ -57,8 +70,7 @@ def main():
         """)
         if st.button("Manage Criteria", key="criteria_mgmt"):
             st.switch_page("pages/criteria_management.py")
-    
-    with col3:
+        
         st.markdown("""
         ### 🔍 AI Analysis
         - Automated ESG scoring
@@ -96,7 +108,7 @@ def main():
         # Initialize connection to show system health
         session = st.connection("snowflake").session()
         
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4, col5 = st.columns(5)
         
         with col1:
             # Check for processed documents
@@ -106,14 +118,15 @@ def main():
                 st.metric("📄 Processed Docs", doc_count, delta="Ready")
             except:
                 st.metric("📄 Processed Docs", "0", delta="Ready")        
+        
         with col2:
             # Check for processed documents chunks
             try:
                 result = session.sql("SELECT COUNT(*) as count FROM cortex_docs_chunks_table").collect()
                 doc_chunk_count = result[0]['COUNT'] if result else 0
-                st.metric("📄 Processed Docs Chunks", doc_chunk_count, delta="Ready")
+                st.metric("📄 Doc Chunks", doc_chunk_count, delta="Ready")
             except:
-                st.metric("📄 Processed Docs Chunks", "0", delta="Ready")
+                st.metric("📄 Doc Chunks", "0", delta="Ready")
         
         with col3:
             # Check for criteria
@@ -125,6 +138,15 @@ def main():
                 st.metric("📋 Active Criteria", "0", delta="Setup needed")
         
         with col4:
+            # Check for media scan records
+            try:
+                result = session.sql("SELECT COUNT(*) as count FROM deloitte_200_db.deloitte_200_schema.media_scan").collect()
+                media_scan_count = result[0]['COUNT'] if result else 0
+                st.metric("📰 Media Scans", media_scan_count, delta="Ready")
+            except:
+                st.metric("📰 Media Scans", "0", delta="Setup needed")
+        
+        with col5:
             st.metric("🤖 AI Services", "Cortex", delta="Ready")
             
     except Exception as e:

@@ -1,1 +1,0 @@
-/Users/makukreja/projects/top-200/process_documents.sql
