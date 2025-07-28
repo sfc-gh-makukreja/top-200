@@ -223,19 +223,33 @@ def main():
         st.error("❌ No active criteria found. Please add criteria in Criteria Management first.")
         return
 
-    # Multi-select for criteria
-    selected_criteria_names = st.multiselect(
-        "Select criteria to analyze:",
-        options=[c['display_name'] for c in available_criteria],
-        help="You can select multiple criteria for analysis"
+    # Criteria selection mode
+    criteria_selection_mode = st.radio(
+        "Choose criteria mode:",
+        ["🎯 Select Specific Criteria", "📋 Run All Criteria"],
+        horizontal=True
     )
+
+    selected_criteria = []
     
-    if not selected_criteria_names:
-        st.warning("⚠️ Please select at least one criteria for analysis.")
-        return
-    
-    # Get selected criteria details
-    selected_criteria = [c for c in available_criteria if c['display_name'] in selected_criteria_names]
+    if criteria_selection_mode == "🎯 Select Specific Criteria":
+        # Multi-select for specific criteria
+        selected_criteria_names = st.multiselect(
+            "Select criteria to analyze:",
+            options=[c['display_name'] for c in available_criteria],
+            help="You can select multiple criteria for analysis"
+        )
+        
+        if not selected_criteria_names:
+            st.warning("⚠️ Please select at least one criteria for analysis.")
+            return
+        
+        # Get selected criteria details
+        selected_criteria = [c for c in available_criteria if c['display_name'] in selected_criteria_names]
+            
+    else:  # Run all criteria
+        selected_criteria = available_criteria
+        st.info(f"📋 Analysis will run for all {len(available_criteria)} available criteria")
     
     # Show selected criteria details
     with st.expander("📋 Selected Criteria Details", expanded=False):
