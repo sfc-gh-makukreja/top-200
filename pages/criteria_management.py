@@ -51,16 +51,22 @@ def save_criteria(session: Session, criteria_data: Dict[str, Any], is_edit: bool
         cluster_list = [item.strip() for item in criteria_data['cluster'].split(',') if item.strip()]
         
         if is_edit:
-            # Update existing criteria
-            query = """
+            # Update existing criteria - use ARRAY_CONSTRUCT for proper ARRAY type
+            if cluster_list:
+                placeholders = ', '.join(['?' for _ in cluster_list])
+                cluster_sql = f"ARRAY_CONSTRUCT({placeholders})"
+                params = [criteria_data['question']] + cluster_list
+            else:
+                cluster_sql = "ARRAY_CONSTRUCT()"
+                params = [criteria_data['question']]
+                
+            query = f"""
                 UPDATE input_criteria 
-                SET question = ?, cluster = ?, role = ?, instructions = ?, 
+                SET question = ?, cluster = {cluster_sql}, role = ?, instructions = ?, 
                     output = ?, criteria_prompt = ?, weight = ?, version = ?, active = ?
                 WHERE id = ?
             """
-            session.sql(query, [
-                criteria_data['question'],
-                cluster_list,
+            params += [
                 criteria_data['role'],
                 criteria_data['instructions'],
                 criteria_data['output'],
@@ -69,18 +75,24 @@ def save_criteria(session: Session, criteria_data: Dict[str, Any], is_edit: bool
                 criteria_data['version'],
                 criteria_data['active'],
                 criteria_data['id']
-            ]).collect()
+            ]
+            session.sql(query, params).collect()
         else:
-            # Insert new criteria
-            query = """
+            # Insert new criteria - use ARRAY_CONSTRUCT for proper ARRAY type
+            if cluster_list:
+                placeholders = ', '.join(['?' for _ in cluster_list])
+                cluster_sql = f"ARRAY_CONSTRUCT({placeholders})"
+                params = [criteria_data['id'], criteria_data['question']] + cluster_list
+            else:
+                cluster_sql = "ARRAY_CONSTRUCT()"
+                params = [criteria_data['id'], criteria_data['question']]
+                
+            query = f"""
                 INSERT INTO input_criteria 
                 (id, question, cluster, role, instructions, output, criteria_prompt, weight, version, active)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, {cluster_sql}, ?, ?, ?, ?, ?, ?, ?)
             """
-            session.sql(query, [
-                criteria_data['id'],
-                criteria_data['question'],
-                cluster_list,
+            params += [
                 criteria_data['role'],
                 criteria_data['instructions'],
                 criteria_data['output'],
@@ -88,7 +100,8 @@ def save_criteria(session: Session, criteria_data: Dict[str, Any], is_edit: bool
                 criteria_data['weight'],
                 criteria_data['version'],
                 criteria_data['active']
-            ]).collect()
+            ]
+            session.sql(query, params).collect()
         
         return True
     except Exception as e:
@@ -362,19 +375,25 @@ def main():
                             try:
                                 # Parse cluster from JSON string to list
                                 import json
-                                cluster_list = json.loads(row['CLUSTER']) if row['CLUSTER'] else []
+                                cluster_list = []
+                                if row['CLUSTER'] and str(row['CLUSTER']).strip() and str(row['CLUSTER']).strip() != 'nan':
+                                    try:
+                                        cluster_list = json.loads(str(row['CLUSTER']))
+                                    except (json.JSONDecodeError, ValueError):
+                                        # Fallback: treat as comma-separated string
+                                        cluster_list = [item.strip() for item in str(row['CLUSTER']).split(',') if item.strip()]
                                 
                                 criteria_data = {
                                     'id': str(row['ID']),
                                     'question': str(row['QUESTION']),
-                                    'cluster': ', '.join(cluster_list),
-                                    'role': str(row['ROLE']),
-                                    'instructions': str(row['INSTRUCTIONS']),
-                                    'output': str(row['OUTPUT']),
-                                    'criteria_prompt': str(row['CRITERIA_PROMPT']),
-                                    'weight': float(row['WEIGHT']),
-                                    'version': str(row['VERSION']),
-                                    'active': bool(row['ACTIVE'])
+                                    'cluster': ', '.join(cluster_list) if cluster_list else '',
+                                    'role': str(row['ROLE']) if row['ROLE'] and str(row['ROLE']) != 'nan' else '',
+                                    'instructions': str(row['INSTRUCTIONS']) if row['INSTRUCTIONS'] and str(row['INSTRUCTIONS']) != 'nan' else '',
+                                    'output': str(row['OUTPUT']) if row['OUTPUT'] and str(row['OUTPUT']) != 'nan' else '',
+                                    'criteria_prompt': str(row['CRITERIA_PROMPT']) if row['CRITERIA_PROMPT'] and str(row['CRITERIA_PROMPT']) != 'nan' else '',
+                                    'weight': float(row['WEIGHT']) if row['WEIGHT'] and str(row['WEIGHT']) != 'nan' else 1.0,
+                                    'version': str(row['VERSION']) if row['VERSION'] and str(row['VERSION']) != 'nan' else '1.0',
+                                    'active': bool(row['ACTIVE']) if row['ACTIVE'] and str(row['ACTIVE']) != 'nan' else True
                                 }
                                 
                                 if save_criteria(session, criteria_data):
