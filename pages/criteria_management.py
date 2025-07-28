@@ -472,7 +472,11 @@ def main():
                     st.markdown(f"**Weight:** {row['WEIGHT']}")
                     st.markdown(f"**Version:** {row['VERSION']}")
                     
-                    with st.expander("View Criteria Prompt"):
+                    # Show/hide criteria prompt with button
+                    if st.button(f"👁️ View Prompt", key=f"view_prompt_{row['ID']}"):
+                        st.session_state[f"show_prompt_{row['ID']}"] = not st.session_state.get(f"show_prompt_{row['ID']}", False)
+                    
+                    if st.session_state.get(f"show_prompt_{row['ID']}", False):
                         st.code(row['CRITERIA_PROMPT'], language="text")
                 
                 with col2:
