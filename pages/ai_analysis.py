@@ -31,7 +31,7 @@ def rag(query, company_name):
             .schemas['top_200_schema']
             .cortex_search_services['cortex_search_service_ocr']
         )
-    columns = ['chunk',
+    columns = ['final_chunk_ocr',
             'relative_path',
             'COMPANY_NAME',
             'year',
@@ -44,7 +44,7 @@ def rag(query, company_name):
     results = context_documents.results
     context_str = ""
     for i, r in enumerate(results):
-        context_str += f"Context document {i+1}: {r['chunk']} \n" + "\n"
+        context_str += f"Context document {i+1}: {r['final_chunk_ocr']} \n" + "\n"
     prompt_context, results = context_str, results
     prompt = f"""{query}
     <context>
