@@ -1,0 +1,422 @@
+ID,Cluster,Instruction,NAME,output,CRITERIA_PROMPT,WEIGHT,VERSION,ACTIVE,
+A.1,"Strategy, Planning cycle","<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+","Does the business show a long-term outlook, minimum longer then 5 years, counting from the year of publication, specifically for its sustainability strategy, and planning cycle? If not this should answer a 'no' including the planning/outlook/performance period extending to year.","
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>","<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+A.1 <cluster>Strategy, Planning cycle</cluster><question>Does the business show a long-term outlook, minimum longer then 5 years, counting from the year of publication, specifically for its sustainability strategy, and planning cycle? If not this should answer a 'no' including the planning/outlook/performance period extending to year.</question>
+A.2 <cluster>Strategy, Planning cycle</cluster><question>Is sustainability integrated into the business model and/or central to its core strategy, showing that its is not treated as a separate issue. Indicate which parts of the business are involved (beyond governance and leadership)? Show evidence of the values, culture and or principles linked to sustainability (beyond climate change, for example biodiversity, human rights, circular economy)?</question>
+A.4 <cluster>Strategy, Planning cycle</cluster><question>Is there evidence of a regular or on ongoing bases review (optional: and development) of the company's sustainability strategy, that goes beyond only the emission reduction/decarbonisation strategy? In the answer mention how often a year is meant with regular/ongoing</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question A.1
+</task>",0.05,20250723,TRUE,
+A.2,"Strategy, Values & Principles",,"Is sustainability integrated into the business model and/or central to its core strategy, showing that its is not treated as a separate issue. Indicate which parts of the business are involved (beyond governance and leadership)? Show evidence of the values, culture and or principles linked to sustainability (beyond climate change, for example biodiversity, human rights, circular economy)?",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+A.1 <cluster>Strategy, Planning cycle</cluster><question>Does the business show a long-term outlook, minimum longer then 5 years, counting from the year of publication, specifically for its sustainability strategy, and planning cycle? If not this should answer a 'no' including the planning/outlook/performance period extending to year.</question>
+A.2 <cluster>Strategy, Planning cycle</cluster><question>Is sustainability integrated into the business model and/or central to its core strategy, showing that its is not treated as a separate issue. Indicate which parts of the business are involved (beyond governance and leadership)? Show evidence of the values, culture and or principles linked to sustainability (beyond climate change, for example biodiversity, human rights, circular economy)?</question>
+A.4 <cluster>Strategy, Planning cycle</cluster><question>Is there evidence of a regular or on ongoing bases review (optional: and development) of the company's sustainability strategy, that goes beyond only the emission reduction/decarbonisation strategy? In the answer mention how often a year is meant with regular/ongoing</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question A.2
+</task>",0.05,20250723,TRUE,
+A.4,"Strategy, Governance",,"Is there evidence of a regular or on ongoing bases review (optional: and development) of the company's sustainability strategy, that goes beyond only the emission reduction/decarbonisation strategy? In the answer mention how often a year is meant with regular/ongoing",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+A.1 <cluster>Strategy, Planning cycle</cluster><question>Does the business show a long-term outlook, minimum longer then 5 years, counting from the year of publication, specifically for its sustainability strategy, and planning cycle? If not this should answer a 'no' including the planning/outlook/performance period extending to year.</question>
+A.2 <cluster>Strategy, Planning cycle</cluster><question>Is sustainability integrated into the business model and/or central to its core strategy, showing that its is not treated as a separate issue. Indicate which parts of the business are involved (beyond governance and leadership)? Show evidence of the values, culture and or principles linked to sustainability (beyond climate change, for example biodiversity, human rights, circular economy)?</question>
+A.4 <cluster>Strategy, Planning cycle</cluster><question>Is there evidence of a regular or on ongoing bases review (optional: and development) of the company's sustainability strategy, that goes beyond only the emission reduction/decarbonisation strategy? In the answer mention how often a year is meant with regular/ongoing</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question A.4
+</task>",0.05,20250723,TRUE,
+B.1,Principles & values,,"Does the company articulate its role as a company as part of the economy/society/world in achieving sustainable development, so what does the company reconises both its impact of its operations have on the environment and society (""inside-out"" or impact materiality), and how environmental and social issues affect the company's own financial performance and value (""outside-in"" or financial materiality). If so, provide evidence how they frame this for inside-out and/or outside-in perspective, and how it does the company manages these within it's core business activities and responsibilities (not whitin governance/board level) beyond emission reduction/decarbonisation targets?",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+B.1 <cluster>Principles & values</cluster><question>Does the company articulate its role as a company as part of the economy/society/world in achieving sustainable development, so what does the company reconises both its impact of its operations have on the environment and society (""inside-out"" or impact materiality), and how environmental and social issues affect the company's own financial performance and value (""outside-in"" or financial materiality). If so, provide evidence how they frame this for inside-out and/or outside-in perspective, and how it does the company manages these within it's core business activities and responsibilities (not whitin governance/board level) beyond emission reduction/decarbonisation targets?</question>
+B.2 <cluster>Governance</cluster><question>Is there evidence that the CEO and MD both articulates and demonstrates strong leadership on material ESG matters? Show the evidence in one sentence or paragraphs it mention the Executive management and C-suite level that have the leadership specifically in relation to the ESG matters, not for general day-to-day management and responsibilities</question>
+B.3 <cluster>Governance</cluster><question>Does the Executive Management have accountabilities/responsibilities (not remuneration-tied) for ensuring management of ESG issues, climate risk management and/or commitments to diversity and inclusion? If yes, say per boardmember which responsibilities</question>
+B.4 <cluster>Governance</cluster><question>Does the company has for this year report, ESG performance-tied bonuses/remuneration/compensation for Executive / C-suite level? If yes, only mention for what ESG-related performance/KPIs and for which Executive / C-suite level</question>
+B.5 <cluster>Risk Management</cluster><question>Does the company identify and manage climate-related risks (excl. GHG)?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question B.1
+</task>",0.05,20250723,TRUE,
+B.2,Governance,,"Is there evidence that the CEO and MD both articulates and demonstrates strong leadership on material ESG matters? Show the evidence in one sentence or paragraphs it mention the Executive management and C-suite level that have the leadership specifically in relation to the ESG matters, not for general day-to-day management and responsibilities",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+B.1 <cluster>Principles & values</cluster><question>Does the company articulate its role as a company as part of the economy/society/world in achieving sustainable development, so what does the company reconises both its impact of its operations have on the environment and society (""inside-out"" or impact materiality), and how environmental and social issues affect the company's own financial performance and value (""outside-in"" or financial materiality). If so, provide evidence how they frame this for inside-out and/or outside-in perspective, and how it does the company manages these within it's core business activities and responsibilities (not whitin governance/board level) beyond emission reduction/decarbonisation targets?</question>
+B.2 <cluster>Governance</cluster><question>Is there evidence that the CEO and MD both articulates and demonstrates strong leadership on material ESG matters? Show the evidence in one sentence or paragraphs it mention the Executive management and C-suite level that have the leadership specifically in relation to the ESG matters, not for general day-to-day management and responsibilities</question>
+B.3 <cluster>Governance</cluster><question>Does the Executive Management have accountabilities/responsibilities (not remuneration-tied) for ensuring management of ESG issues, climate risk management and/or commitments to diversity and inclusion? If yes, say per boardmember which responsibilities</question>
+B.4 <cluster>Governance</cluster><question>Does the company has for this year report, ESG performance-tied bonuses/remuneration/compensation for Executive / C-suite level? If yes, only mention for what ESG-related performance/KPIs and for which Executive / C-suite level</question>
+B.5 <cluster>Risk Management</cluster><question>Does the company identify and manage climate-related risks (excl. GHG)?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question B.2
+</task>",0.05,20250723,TRUE,
+B.3,Governance,,"Does the Executive Management have accountabilities/responsibilities (not remuneration-tied) for ensuring management of ESG issues, climate risk management and/or commitments to diversity and inclusion? If yes, say per boardmember which responsibilities",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+B.1 <cluster>Principles & values</cluster><question>Does the company articulate its role as a company as part of the economy/society/world in achieving sustainable development, so what does the company reconises both its impact of its operations have on the environment and society (""inside-out"" or impact materiality), and how environmental and social issues affect the company's own financial performance and value (""outside-in"" or financial materiality). If so, provide evidence how they frame this for inside-out and/or outside-in perspective, and how it does the company manages these within it's core business activities and responsibilities (not whitin governance/board level) beyond emission reduction/decarbonisation targets?</question>
+B.2 <cluster>Governance</cluster><question>Is there evidence that the CEO and MD both articulates and demonstrates strong leadership on material ESG matters? Show the evidence in one sentence or paragraphs it mention the Executive management and C-suite level that have the leadership specifically in relation to the ESG matters, not for general day-to-day management and responsibilities</question>
+B.3 <cluster>Governance</cluster><question>Does the Executive Management have accountabilities/responsibilities (not remuneration-tied) for ensuring management of ESG issues, climate risk management and/or commitments to diversity and inclusion? If yes, say per boardmember which responsibilities</question>
+B.4 <cluster>Governance</cluster><question>Does the company has for this year report, ESG performance-tied bonuses/remuneration/compensation for Executive / C-suite level? If yes, only mention for what ESG-related performance/KPIs and for which Executive / C-suite level</question>
+B.5 <cluster>Risk Management</cluster><question>Does the company identify and manage climate-related risks (excl. GHG)?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question B.3
+</task>",0.05,20250723,TRUE,
+B.4,Governance,,"Does the company has for this year report, ESG performance-tied bonuses/remuneration/compensation for Executive / C-suite level? If yes, only mention for what ESG-related performance/KPIs and for which Executive / C-suite level",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+B.1 <cluster>Principles & values</cluster><question>Does the company articulate its role as a company as part of the economy/society/world in achieving sustainable development, so what does the company reconises both its impact of its operations have on the environment and society (""inside-out"" or impact materiality), and how environmental and social issues affect the company's own financial performance and value (""outside-in"" or financial materiality). If so, provide evidence how they frame this for inside-out and/or outside-in perspective, and how it does the company manages these within it's core business activities and responsibilities (not whitin governance/board level) beyond emission reduction/decarbonisation targets?</question>
+B.2 <cluster>Governance</cluster><question>Is there evidence that the CEO and MD both articulates and demonstrates strong leadership on material ESG matters? Show the evidence in one sentence or paragraphs it mention the Executive management and C-suite level that have the leadership specifically in relation to the ESG matters, not for general day-to-day management and responsibilities</question>
+B.3 <cluster>Governance</cluster><question>Does the Executive Management have accountabilities/responsibilities (not remuneration-tied) for ensuring management of ESG issues, climate risk management and/or commitments to diversity and inclusion? If yes, say per boardmember which responsibilities</question>
+B.4 <cluster>Governance</cluster><question>Does the company has for this year report, ESG performance-tied bonuses/remuneration/compensation for Executive / C-suite level? If yes, only mention for what ESG-related performance/KPIs and for which Executive / C-suite level</question>
+B.5 <cluster>Risk Management</cluster><question>Does the company identify and manage climate-related risks (excl. GHG)?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question B.4
+</task>",0.05,20250723,TRUE,
+B.5,Risk Management,,Does the company identify and manage climate-related risks (excl. GHG)?,,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+B.1 <cluster>Principles & values</cluster><question>Does the company articulate its role as a company as part of the economy/society/world in achieving sustainable development, so what does the company reconises both its impact of its operations have on the environment and society (""inside-out"" or impact materiality), and how environmental and social issues affect the company's own financial performance and value (""outside-in"" or financial materiality). If so, provide evidence how they frame this for inside-out and/or outside-in perspective, and how it does the company manages these within it's core business activities and responsibilities (not whitin governance/board level) beyond emission reduction/decarbonisation targets?</question>
+B.2 <cluster>Governance</cluster><question>Is there evidence that the CEO and MD both articulates and demonstrates strong leadership on material ESG matters? Show the evidence in one sentence or paragraphs it mention the Executive management and C-suite level that have the leadership specifically in relation to the ESG matters, not for general day-to-day management and responsibilities</question>
+B.3 <cluster>Governance</cluster><question>Does the Executive Management have accountabilities/responsibilities (not remuneration-tied) for ensuring management of ESG issues, climate risk management and/or commitments to diversity and inclusion? If yes, say per boardmember which responsibilities</question>
+B.4 <cluster>Governance</cluster><question>Does the company has for this year report, ESG performance-tied bonuses/remuneration/compensation for Executive / C-suite level? If yes, only mention for what ESG-related performance/KPIs and for which Executive / C-suite level</question>
+B.5 <cluster>Risk Management</cluster><question>Does the company identify and manage climate-related risks (excl. GHG)?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question B.5
+</task>",,20250723,,
+B.6,Governance,,"<media_scan> tags represent a company's disqualification for previous assessment, we want to ensure that in the current assessment this company is showing evidence to have improved themselves on this disqualification topic.
+Look up the company's name in the table of <media_scan>. If the company name is in the <media_scan>: determine from that list what the disqualification topic is. Then look up this topic in the evidence from the annual report, and find evidence what the companies actions are on this topic, or not. And if included show if the company's measures in the the financial year of the annual report, have improved their performance on this topic or not.
+
+If the company is NOT in the <media_scan>: then, look up evidence for historical figures on non-financial performance (e.g. carbon footprint, water use, waste volume), for the year of the annual report or earlier, and if it includes the % of improvement for annual report year, show that to.",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+B.1 <cluster>Principles & values</cluster><question>Does the company articulate its role as a company as part of the economy/society/world in achieving sustainable development, so what does the company reconises both its impact of its operations have on the environment and society (""inside-out"" or impact materiality), and how environmental and social issues affect the company's own financial performance and value (""outside-in"" or financial materiality). If so, provide evidence how they frame this for inside-out and/or outside-in perspective, and how it does the company manages these within it's core business activities and responsibilities (not whitin governance/board level) beyond emission reduction/decarbonisation targets?</question>
+B.2 <cluster>Governance</cluster><question>Is there evidence that the CEO and MD both articulates and demonstrates strong leadership on material ESG matters? Show the evidence in one sentence or paragraphs it mention the Executive management and C-suite level that have the leadership specifically in relation to the ESG matters, not for general day-to-day management and responsibilities</question>
+B.3 <cluster>Governance</cluster><question>Does the Executive Management have accountabilities/responsibilities (not remuneration-tied) for ensuring management of ESG issues, climate risk management and/or commitments to diversity and inclusion? If yes, say per boardmember which responsibilities</question>
+B.4 <cluster>Governance</cluster><question>Does the company has for this year report, ESG performance-tied bonuses/remuneration/compensation for Executive / C-suite level? If yes, only mention for what ESG-related performance/KPIs and for which Executive / C-suite level</question>
+B.5 <cluster>Risk Management</cluster><question>Does the company identify and manage climate-related risks (excl. GHG)?</question>
+B.6 <cluster>Governance</cluster><question><media_scan> tags represent a company's disqualification for previous assessment, we want to ensure that in the current assessment this company is showing evidence to have improved themselves on this disqualification topic.
+Look up the company's name in the table of <media_scan>. If the company name is in the <media_scan>: determine from that list what the disqualification topic is. Then look up this topic in the evidence from the annual report, and find evidence what the companies actions are on this topic, or not. And if included show if the company's measures in the the financial year of the annual report, have improved their performance on this topic or not.
+
+If the company is NOT in the <media_scan>: then, look up evidence for historical figures on non-financial performance (e.g. carbon footprint, water use, waste volume), for the year of the annual report or earlier, and if it includes the % of improvement for annual report year, show that to.</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question B.6
+</task>",,20250723,,
+C.1,Risk Management,,"Does the company detail current systems, policies, practices and/or procedures (not related to executive management/leadership responsibilities/accountabilities/overseeing and reporting standards and assurance) to manage material ESG issues, beyond decarbonisation/greenhouse gas emissions including for example climate change, biodiversity, human rights?",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+C.1 <cluster>Risk Management</cluster><question>Does the company detail current systems, policies, practices and/or procedures (not related to executive management/leadership responsibilities/accountabilities/overseeing and reporting standards and assurance) to manage material ESG issues, beyond decarbonisation/greenhouse gas emissions including for example climate change, biodiversity, human rights?</question>
+C.2 <cluster>Strategy, Risk management</cluster><question>Does the ESG strategy (incl targets) addressed material ESG risks, beyond only identifying and assessing it internally?  . i.e. negative externalities arising from core business activities (such as emissions linked to high fossil fuel dependency; indentured labour in the supply chain etc) If yes, indicate what the mitigation activities are implemented.</question>
+C.3 <cluster>Strategy, Supply chain management, Operations</cluster><question>Does the business strategy articulate how the business is evolving to become more sustainability oriented with their actual core business activities (beyond internal operations such as reporting, governance, risk management, remuneration etc.), e.g. their production or service offerings? Show this with detailing the clear KPIs, with time-bound targets and pathways to meet its targets, beyond carbon emissions/decarbonisation?</question>
+C.4 <cluster>Strategy, Engagement management</cluster><question>Is there evidence of the company having positive/beneficial outcomes for stakeholders, including employees and the communities in which it operates, and/or Iwi's it impacts, by improving the impact on these stakeholders wellbeing and/or working together with these stakeholders?</question>
+C.5 <cluster>Engagement management, Governance</cluster><question>Is there evidence of the company actively engaging with its stakeholders, such as employees, local communities, iwi's etc. and can it demonstrate that its strategy actively addresses these stakeholder concerns and wellbeing?</question>
+C.6 <cluster>Metrics & Targets, Reporting</cluster><question>Is there evidence of performance against CARBON targets on tonnes Co2/GHG emissions on scope 1, 2 and 3 (and potentially intesity) with demonstrating a track record over the past (at least 5) financial years and progress towards carbon targets?
+If so, indicate if it shows a positive performance against the targets's progress towards stated carbon targets?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question C.1
+</task>",0.083333333,20250723,TRUE,
+C.2,"Strategy, Risk management",,"Does the ESG strategy (incl targets) addressed material ESG risks, beyond only identifying and assessing it internally?  . i.e. negative externalities arising from core business activities (such as emissions linked to high fossil fuel dependency; indentured labour in the supply chain etc) If yes, indicate what the mitigation activities are implemented.",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+C.1 <cluster>Risk Management</cluster><question>Does the company detail current systems, policies, practices and/or procedures (not related to executive management/leadership responsibilities/accountabilities/overseeing and reporting standards and assurance) to manage material ESG issues, beyond decarbonisation/greenhouse gas emissions including for example climate change, biodiversity, human rights?</question>
+C.2 <cluster>Strategy, Risk management</cluster><question>Does the ESG strategy (incl targets) addressed material ESG risks, beyond only identifying and assessing it internally?  . i.e. negative externalities arising from core business activities (such as emissions linked to high fossil fuel dependency; indentured labour in the supply chain etc) If yes, indicate what the mitigation activities are implemented.</question>
+C.3 <cluster>Strategy, Supply chain management, Operations</cluster><question>Does the business strategy articulate how the business is evolving to become more sustainability oriented with their actual core business activities (beyond internal operations such as reporting, governance, risk management, remuneration etc.), e.g. their production or service offerings? Show this with detailing the clear KPIs, with time-bound targets and pathways to meet its targets, beyond carbon emissions/decarbonisation?</question>
+C.4 <cluster>Strategy, Engagement management</cluster><question>Is there evidence of the company having positive/beneficial outcomes for stakeholders, including employees and the communities in which it operates, and/or Iwi's it impacts, by improving the impact on these stakeholders wellbeing and/or working together with these stakeholders?</question>
+C.5 <cluster>Engagement management, Governance</cluster><question>Is there evidence of the company actively engaging with its stakeholders, such as employees, local communities, iwi's etc. and can it demonstrate that its strategy actively addresses these stakeholder concerns and wellbeing?</question>
+C.6 <cluster>Metrics & Targets, Reporting</cluster><question>Is there evidence of performance against CARBON targets on tonnes Co2/GHG emissions on scope 1, 2 and 3 (and potentially intesity) with demonstrating a track record over the past (at least 5) financial years and progress towards carbon targets?
+If so, indicate if it shows a positive performance against the targets's progress towards stated carbon targets?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question C.2
+</task>",0.083333333,20250723,TRUE,
+C.3,"Strategy, Supply chain management, Operations",,"Does the business strategy articulate how the business is evolving to become more sustainability oriented with their actual core business activities (beyond internal operations such as reporting, governance, risk management, remuneration etc.), e.g. their production or service offerings? Show this with detailing the clear KPIs, with time-bound targets and pathways to meet its targets, beyond carbon emissions/decarbonisation?",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+C.1 <cluster>Risk Management</cluster><question>Does the company detail current systems, policies, practices and/or procedures (not related to executive management/leadership responsibilities/accountabilities/overseeing and reporting standards and assurance) to manage material ESG issues, beyond decarbonisation/greenhouse gas emissions including for example climate change, biodiversity, human rights?</question>
+C.2 <cluster>Strategy, Risk management</cluster><question>Does the ESG strategy (incl targets) addressed material ESG risks, beyond only identifying and assessing it internally?  . i.e. negative externalities arising from core business activities (such as emissions linked to high fossil fuel dependency; indentured labour in the supply chain etc) If yes, indicate what the mitigation activities are implemented.</question>
+C.3 <cluster>Strategy, Supply chain management, Operations</cluster><question>Does the business strategy articulate how the business is evolving to become more sustainability oriented with their actual core business activities (beyond internal operations such as reporting, governance, risk management, remuneration etc.), e.g. their production or service offerings? Show this with detailing the clear KPIs, with time-bound targets and pathways to meet its targets, beyond carbon emissions/decarbonisation?</question>
+C.4 <cluster>Strategy, Engagement management</cluster><question>Is there evidence of the company having positive/beneficial outcomes for stakeholders, including employees and the communities in which it operates, and/or Iwi's it impacts, by improving the impact on these stakeholders wellbeing and/or working together with these stakeholders?</question>
+C.5 <cluster>Engagement management, Governance</cluster><question>Is there evidence of the company actively engaging with its stakeholders, such as employees, local communities, iwi's etc. and can it demonstrate that its strategy actively addresses these stakeholder concerns and wellbeing?</question>
+C.6 <cluster>Metrics & Targets, Reporting</cluster><question>Is there evidence of performance against CARBON targets on tonnes Co2/GHG emissions on scope 1, 2 and 3 (and potentially intesity) with demonstrating a track record over the past (at least 5) financial years and progress towards carbon targets?
+If so, indicate if it shows a positive performance against the targets's progress towards stated carbon targets?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question C.3
+</task>",0.083333333,20250723,TRUE,
+C.4,"Strategy, Engagement management",,"Is there evidence of the company having positive/beneficial outcomes for stakeholders, including employees and the communities in which it operates, and/or Iwi's it impacts, by improving the impact on these stakeholders wellbeing and/or working together with these stakeholders?",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+C.1 <cluster>Risk Management</cluster><question>Does the company detail current systems, policies, practices and/or procedures (not related to executive management/leadership responsibilities/accountabilities/overseeing and reporting standards and assurance) to manage material ESG issues, beyond decarbonisation/greenhouse gas emissions including for example climate change, biodiversity, human rights?</question>
+C.2 <cluster>Strategy, Risk management</cluster><question>Does the ESG strategy (incl targets) addressed material ESG risks, beyond only identifying and assessing it internally?  . i.e. negative externalities arising from core business activities (such as emissions linked to high fossil fuel dependency; indentured labour in the supply chain etc) If yes, indicate what the mitigation activities are implemented.</question>
+C.3 <cluster>Strategy, Supply chain management, Operations</cluster><question>Does the business strategy articulate how the business is evolving to become more sustainability oriented with their actual core business activities (beyond internal operations such as reporting, governance, risk management, remuneration etc.), e.g. their production or service offerings? Show this with detailing the clear KPIs, with time-bound targets and pathways to meet its targets, beyond carbon emissions/decarbonisation?</question>
+C.4 <cluster>Strategy, Engagement management</cluster><question>Is there evidence of the company having positive/beneficial outcomes for stakeholders, including employees and the communities in which it operates, and/or Iwi's it impacts, by improving the impact on these stakeholders wellbeing and/or working together with these stakeholders?</question>
+C.5 <cluster>Engagement management, Governance</cluster><question>Is there evidence of the company actively engaging with its stakeholders, such as employees, local communities, iwi's etc. and can it demonstrate that its strategy actively addresses these stakeholder concerns and wellbeing?</question>
+C.6 <cluster>Metrics & Targets, Reporting</cluster><question>Is there evidence of performance against CARBON targets on tonnes Co2/GHG emissions on scope 1, 2 and 3 (and potentially intesity) with demonstrating a track record over the past (at least 5) financial years and progress towards carbon targets?
+If so, indicate if it shows a positive performance against the targets's progress towards stated carbon targets?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question C.4
+</task>",0.083333333,20250723,TRUE,
+C.5,"Engagement management, Governance",,"Is there evidence of the company actively engaging with its stakeholders, such as employees, local communities, iwi's etc. and can it demonstrate that its strategy actively addresses these stakeholder concerns and wellbeing?",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+C.1 <cluster>Risk Management</cluster><question>Does the company detail current systems, policies, practices and/or procedures (not related to executive management/leadership responsibilities/accountabilities/overseeing and reporting standards and assurance) to manage material ESG issues, beyond decarbonisation/greenhouse gas emissions including for example climate change, biodiversity, human rights?</question>
+C.2 <cluster>Strategy, Risk management</cluster><question>Does the ESG strategy (incl targets) addressed material ESG risks, beyond only identifying and assessing it internally?  . i.e. negative externalities arising from core business activities (such as emissions linked to high fossil fuel dependency; indentured labour in the supply chain etc) If yes, indicate what the mitigation activities are implemented.</question>
+C.3 <cluster>Strategy, Supply chain management, Operations</cluster><question>Does the business strategy articulate how the business is evolving to become more sustainability oriented with their actual core business activities (beyond internal operations such as reporting, governance, risk management, remuneration etc.), e.g. their production or service offerings? Show this with detailing the clear KPIs, with time-bound targets and pathways to meet its targets, beyond carbon emissions/decarbonisation?</question>
+C.4 <cluster>Strategy, Engagement management</cluster><question>Is there evidence of the company having positive/beneficial outcomes for stakeholders, including employees and the communities in which it operates, and/or Iwi's it impacts, by improving the impact on these stakeholders wellbeing and/or working together with these stakeholders?</question>
+C.5 <cluster>Engagement management, Governance</cluster><question>Is there evidence of the company actively engaging with its stakeholders, such as employees, local communities, iwi's etc. and can it demonstrate that its strategy actively addresses these stakeholder concerns and wellbeing?</question>
+C.6 <cluster>Metrics & Targets, Reporting</cluster><question>Is there evidence of performance against CARBON targets on tonnes Co2/GHG emissions on scope 1, 2 and 3 (and potentially intesity) with demonstrating a track record over the past (at least 5) financial years and progress towards carbon targets?
+If so, indicate if it shows a positive performance against the targets's progress towards stated carbon targets?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question C.5
+</task>",0.083333333,20250723,TRUE,
+C.6,"Metrics & Targets, Reporting",,"Is there evidence of performance against CARBON targets on tonnes Co2/GHG emissions on scope 1, 2 and 3 (and potentially intesity) with demonstrating a track record over the past (at least 5) financial years and progress towards carbon targets?
+If so, indicate if it shows a positive performance against the targets's progress towards stated carbon targets?",,"<role> You are an expert ESG analyst working at Deloitte for last 20 years, you have gathered extensive expertise in the domain.
+</role>
+
+<instructions>
+1. your job is to assess a company based on the information shared in their annual report.
+2. Only answer based on the information provided in the report.
+3. Output based on the specified format, Do not output anything else.
+4. You are given a series of questions that pertain to a specfic topic in the analysis/ research. Your job is to focus on one question at a time. And make sure that the answers do not overlap. Each question belong to one or more cluster, mentioned in <cluster> tags.
+5. quote the verbatim from the <context> tags as supporting_evidence. Do not summarize these quotes while providing the supporting_evidence. Provide them as they appear in the <context> tags.
+</instructions>
+
+<questions>
+C.1 <cluster>Risk Management</cluster><question>Does the company detail current systems, policies, practices and/or procedures (not related to executive management/leadership responsibilities/accountabilities/overseeing and reporting standards and assurance) to manage material ESG issues, beyond decarbonisation/greenhouse gas emissions including for example climate change, biodiversity, human rights?</question>
+C.2 <cluster>Strategy, Risk management</cluster><question>Does the ESG strategy (incl targets) addressed material ESG risks, beyond only identifying and assessing it internally?  . i.e. negative externalities arising from core business activities (such as emissions linked to high fossil fuel dependency; indentured labour in the supply chain etc) If yes, indicate what the mitigation activities are implemented.</question>
+C.3 <cluster>Strategy, Supply chain management, Operations</cluster><question>Does the business strategy articulate how the business is evolving to become more sustainability oriented with their actual core business activities (beyond internal operations such as reporting, governance, risk management, remuneration etc.), e.g. their production or service offerings? Show this with detailing the clear KPIs, with time-bound targets and pathways to meet its targets, beyond carbon emissions/decarbonisation?</question>
+C.4 <cluster>Strategy, Engagement management</cluster><question>Is there evidence of the company having positive/beneficial outcomes for stakeholders, including employees and the communities in which it operates, and/or Iwi's it impacts, by improving the impact on these stakeholders wellbeing and/or working together with these stakeholders?</question>
+C.5 <cluster>Engagement management, Governance</cluster><question>Is there evidence of the company actively engaging with its stakeholders, such as employees, local communities, iwi's etc. and can it demonstrate that its strategy actively addresses these stakeholder concerns and wellbeing?</question>
+C.6 <cluster>Metrics & Targets, Reporting</cluster><question>Is there evidence of performance against CARBON targets on tonnes Co2/GHG emissions on scope 1, 2 and 3 (and potentially intesity) with demonstrating a track record over the past (at least 5) financial years and progress towards carbon targets?
+If so, indicate if it shows a positive performance against the targets's progress towards stated carbon targets?</question>
+</questions>
+
+<output> 
+in a json format {result: 'yes' or 'no', 'supporting_evidence': [{1: 'verbatim quote from the retrieved document chunk'}, {2:'another verbatim quote from the retrieved document chunk'}], 'explanation' : 'text' } 
+</output>
+
+<task> 
+Answer question C.6
+</task>",0.083333333,20250723,TRUE,
