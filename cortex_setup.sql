@@ -87,7 +87,7 @@ CREATE OR ALTER TABLE media_scan (
 
 -- Create encrypted stage for document storage
 CREATE OR REPLACE STAGE stage
-    DIRECTORY = (ENABLE = TRUE)
+    DIRECTORY = (ENABLE = TRUE, AUTO_REFRESH = TRUE)
     ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
 
 -- ================================================================

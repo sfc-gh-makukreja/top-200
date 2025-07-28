@@ -24,6 +24,13 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
     }
     
     try:
+        # Step 0: Refresh stage
+        st.info("🔄 Step 0: Refreshing stage...")
+        refresh_sql = """
+        ALTER STAGE stage REFRESH;
+        """
+        session.sql(refresh_sql).collect()
+        
         # Step 1: Parse PDF documents
         st.info("🔄 Step 1: Parsing PDF documents with Cortex...")
         

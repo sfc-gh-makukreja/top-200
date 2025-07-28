@@ -95,16 +95,21 @@ def main():
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("🔗 Database", "Connected", delta="Online")
-        
-        with col2:
             # Check for processed documents
             try:
-                result = session.sql("SELECT COUNT(*) as count FROM cortex_docs_chunks_table").collect()
+                result = session.sql("SELECT COUNT(*) as count FROM cortex_parsed_docs").collect()
                 doc_count = result[0]['COUNT'] if result else 0
                 st.metric("📄 Processed Docs", doc_count, delta="Ready")
             except:
-                st.metric("📄 Processed Docs", "0", delta="Ready")
+                st.metric("📄 Processed Docs", "0", delta="Ready")        
+        with col2:
+            # Check for processed documents chunks
+            try:
+                result = session.sql("SELECT COUNT(*) as count FROM cortex_docs_chunks_table").collect()
+                doc_chunk_count = result[0]['COUNT'] if result else 0
+                st.metric("📄 Processed Docs Chunks", doc_chunk_count, delta="Ready")
+            except:
+                st.metric("📄 Processed Docs Chunks", "0", delta="Ready")
         
         with col3:
             # Check for criteria
