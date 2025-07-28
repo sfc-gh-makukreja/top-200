@@ -335,6 +335,7 @@ def run_analysis(selected_criteria, companies):
     # Generate unique run_id for this analysis session
     import uuid
     import datetime
+    import json
     run_id = f"analysis_{uuid.uuid4().hex[:8]}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
     # Calculate total analyses
@@ -392,13 +393,13 @@ def run_analysis(selected_criteria, companies):
                         INSERT INTO cortex_output (
                             criteria_id, criteria_version, criteria_prompt, question,
                             run_id, result, justification, evidence, data_source, output
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, PARSE_JSON(?))
+                        ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, PARSE_JSON(?)
                         """
                         
                         session.sql(insert_sql, [
                             criteria_id, criteria_version, criteria_prompt, question,
                             run_id, result, justification, evidence, data_source,
-                            str(output_json).replace("'", '"')
+                            json.dumps(output_json)
                         ]).collect()
                         
                         results.append({
@@ -444,11 +445,11 @@ def run_analysis(selected_criteria, companies):
                     INSERT INTO cortex_output (
                         criteria_id, criteria_version, criteria_prompt, question,
                         run_id, result, justification, evidence, data_source, output
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, PARSE_JSON(?))
+                    ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, PARSE_JSON(?)
                     """, [
                         criteria['id'], criteria['version'], criteria['prompt'], criteria['question'],
                         run_id, f"Error: {str(e)}", "Analysis failed", company, company,
-                        str(error_output).replace("'", '"')
+                        json.dumps(error_output)
                     ]).collect()
                 except:
                     pass  # If database save fails, continue
