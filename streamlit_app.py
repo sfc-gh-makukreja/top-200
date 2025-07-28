@@ -16,6 +16,7 @@ def main():
         st.markdown("- **🏠 Home** (Current)")
         st.markdown("- **📄 Document Processing**")
         st.markdown("- **📋 Criteria Management**")
+        st.markdown("- **🔍 AI Analysis**")
         st.markdown("- **📚 Help & Documentation**")
         st.markdown("---")
         st.markdown("### 🔗 Quick Links")
@@ -23,6 +24,8 @@ def main():
             st.switch_page("pages/document_processing.py")
         if st.button("📋 Manage Criteria", type="secondary"):
             st.switch_page("pages/criteria_management.py")
+        if st.button("🔍 AI Analysis", type="secondary"):
+            st.switch_page("pages/ai_analysis.py")
         if st.button("📚 View Help", type="secondary"):
             st.switch_page("pages/help.py")
 
@@ -63,7 +66,8 @@ def main():
         - Comprehensive reporting
         - Deloitte methodology
         """)
-        st.info("🚧 Analysis features coming soon")
+        if st.button("Start Analysis", key="ai_analysis"):
+            st.switch_page("pages/ai_analysis.py")
     
     # Getting started section
     st.markdown("---")
@@ -78,10 +82,10 @@ def main():
         Go to **Criteria Management** to set up evaluation questions and AI prompts.
         
         ### Step 3: Run Analysis 🔍
-        Use the configured criteria to evaluate uploaded documents with AI.
+        Navigate to **AI Analysis** to perform automated evaluations using the RAG system.
         
         ### Step 4: Review Results 📊
-        Examine scoring, evidence, and comprehensive analysis reports.
+        Examine AI-generated analysis, evidence, and comprehensive evaluation reports.
         """)
     
     # System status
