@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import json
 from snowflake.snowpark import Session
 import uuid
 from typing import List, Dict, Any, Optional
@@ -136,6 +137,14 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
             defaults['cluster'] = ', '.join(existing_data['CLUSTER']) if isinstance(existing_data['CLUSTER'], list) else str(existing_data['CLUSTER'])
     
     with st.form("criteria_form"):
+        # ID field at the top
+        id_field = st.text_input(
+            "Criteria ID *",
+            value=defaults['id'],
+            help="Unique identifier for the criteria (e.g., A.1, B.2, CUSTOM_001)",
+            placeholder="A.1"
+        )
+        
         col1, col2 = st.columns(2)
         
         with col1:
@@ -217,6 +226,9 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
             
         if submitted:
             # Validation
+            if not id_field.strip():
+                st.error("Criteria ID is required")
+                return None
             if not question.strip():
                 st.error("Question is required")
                 return None
@@ -225,7 +237,7 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
                 return None
             
             return {
-                'id': defaults['id'],
+                'id': id_field.strip(),
                 'question': question.strip(),
                 'cluster': cluster.strip(),
                 'role': role.strip(),
@@ -253,6 +265,8 @@ def main():
         st.session_state.selected_criteria = None
     if 'show_add_form' not in st.session_state:
         st.session_state.show_add_form = False
+    if 'show_upload' not in st.session_state:
+        st.session_state.show_upload = False
     
     # Action buttons
     col1, col2, col3, col4 = st.columns([1, 1, 1, 3])
@@ -270,6 +284,107 @@ def main():
             st.session_state.show_add_form = False
             st.rerun()
     
+    with col3:
+        if st.button("📤 Bulk Upload"):
+            st.session_state.show_upload = not st.session_state.get('show_upload', False)
+            st.session_state.show_add_form = False
+            st.session_state.edit_mode = False
+    
+    # Show CSV upload section if requested
+    if st.session_state.get('show_upload', False):
+        st.markdown("---")
+        st.subheader("📤 Bulk Upload Criteria from CSV")
+        
+        with st.expander("📋 CSV Format Requirements", expanded=False):
+            st.markdown("""
+            **Required columns (case-sensitive):**
+            - `ID` - Unique identifier (e.g., A.1, B.2)
+            - `QUESTION` - The evaluation question
+            - `CLUSTER` - JSON array format: `["Strategy", "Planning cycle"]`
+            - `ROLE` - Role definition (can include XML tags)
+            - `INSTRUCTIONS` - Instructions (can include XML tags)
+            - `OUTPUT` - Output format (can include XML tags)
+            - `CRITERIA_PROMPT` - Full prompt with XML structure
+            - `WEIGHT` - Numeric weight (e.g., 0.05)
+            - `VERSION` - Version string (e.g., 20250723)
+            - `ACTIVE` - Boolean (True/False)
+            
+            **Example:** Use `input_criteria_transformed.csv` as a template.
+            """)
+        
+        uploaded_file = st.file_uploader(
+            "Choose CSV file",
+            type=['csv'],
+            help="Upload a CSV file with criteria data matching the format above"
+        )
+        
+        if uploaded_file is not None:
+            try:
+                # Read CSV
+                import pandas as pd
+                df = pd.read_csv(uploaded_file)
+                
+                st.subheader(f"📊 Preview: {len(df)} criteria found")
+                st.dataframe(df.head(), use_container_width=True)
+                
+                col_upload1, col_upload2 = st.columns([1, 3])
+                
+                with col_upload1:
+                    if st.button("✅ Import All", type="primary"):
+                        success_count = 0
+                        error_count = 0
+                        
+                        progress_bar = st.progress(0)
+                        status_text = st.empty()
+                        
+                        for idx, row in df.iterrows():
+                            try:
+                                # Parse cluster from JSON string to list
+                                import json
+                                cluster_list = json.loads(row['CLUSTER']) if row['CLUSTER'] else []
+                                
+                                criteria_data = {
+                                    'id': str(row['ID']),
+                                    'question': str(row['QUESTION']),
+                                    'cluster': ', '.join(cluster_list),
+                                    'role': str(row['ROLE']),
+                                    'instructions': str(row['INSTRUCTIONS']),
+                                    'output': str(row['OUTPUT']),
+                                    'criteria_prompt': str(row['CRITERIA_PROMPT']),
+                                    'weight': float(row['WEIGHT']),
+                                    'version': str(row['VERSION']),
+                                    'active': bool(row['ACTIVE'])
+                                }
+                                
+                                if save_criteria(session, criteria_data):
+                                    success_count += 1
+                                else:
+                                    error_count += 1
+                                    
+                                # Update progress
+                                progress = (idx + 1) / len(df)
+                                progress_bar.progress(progress)
+                                status_text.text(f"Processing {idx + 1}/{len(df)}: {row['ID']}")
+                                
+                            except Exception as e:
+                                error_count += 1
+                                st.error(f"Error processing row {idx + 1} ({row.get('ID', 'unknown')}): {e}")
+                        
+                        # Final status
+                        st.success(f"✅ Import complete! {success_count} criteria imported, {error_count} errors.")
+                        if error_count == 0:
+                            st.session_state.show_upload = False
+                            st.rerun()
+                
+                with col_upload2:
+                    if st.button("❌ Cancel Upload"):
+                        st.session_state.show_upload = False
+                        st.rerun()
+                        
+            except Exception as e:
+                st.error(f"Error reading CSV file: {e}")
+                st.info("Please check that your CSV file matches the required format.")
+
     # Show add form if requested
     if st.session_state.show_add_form and not st.session_state.edit_mode:
         st.subheader("Add New Criteria")
