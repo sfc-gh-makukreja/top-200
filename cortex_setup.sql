@@ -164,8 +164,8 @@ CREATE OR REPLACE GIT REPOSITORY top_200_repo
   API_INTEGRATION = SFC_GH_MAKUKREJA_INTEGRATION
   ORIGIN = 'https://github.com/sfc-gh-makukreja/top-200.git';
 
--- Verify repository connection
-SELECT SYSTEM$GIT_REPOSITORY_VALIDATE('top_200_repo') AS git_validation_status;
+-- Verify repository connection (function not available in this version)
+-- SELECT SYSTEM$GIT_REPOSITORY_VALIDATE('top_200_repo') AS git_validation_status;
 
 -- Create Streamlit app from Git repository
 CREATE OR REPLACE STREAMLIT top_200_app
