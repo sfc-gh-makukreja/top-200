@@ -91,7 +91,7 @@ DROP CORTEX SEARCH SERVICE IF EXISTS cortex_search_service_ocr;
 CREATE CORTEX SEARCH SERVICE cortex_search_service_ocr
     ON final_chunk_ocr
     ATTRIBUTES language, company_name, year
-    WAREHOUSE = CURRENT_WAREHOUSE()
+    WAREHOUSE = top_200_wh
     TARGET_LAG = '1 hour'
     AS (
     SELECT
