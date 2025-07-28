@@ -18,6 +18,7 @@ def main():
         st.markdown("- **📋 Criteria Management**")
         st.markdown("- **📰 Media Scan Management**")
         st.markdown("- **🔍 AI Analysis**")
+        st.markdown("- **📊 Review Analysis**")
         st.markdown("- **📚 Help & Documentation**")
         st.markdown("---")
         st.markdown("### 🔗 Quick Links")
@@ -29,6 +30,8 @@ def main():
             st.switch_page("pages/media_scan_management.py")
         if st.button("🔍 AI Analysis", type="secondary"):
             st.switch_page("pages/ai_analysis.py")
+        if st.button("📊 Review Analysis", type="secondary"):
+            st.switch_page("pages/review_analysis.py")
         if st.button("📚 View Help", type="secondary"):
             st.switch_page("pages/help.py")
 
@@ -37,7 +40,7 @@ def main():
     st.markdown("### Welcome to the comprehensive AI-powered analysis platform for evaluating company sustainability and ESG performance.")
     
     # Feature overview
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown("""
@@ -70,7 +73,8 @@ def main():
         """)
         if st.button("Manage Criteria", key="criteria_mgmt"):
             st.switch_page("pages/criteria_management.py")
-        
+    
+    with col3:
         st.markdown("""
         ### 🔍 AI Analysis
         - Automated ESG scoring
@@ -80,6 +84,16 @@ def main():
         """)
         if st.button("Start Analysis", key="ai_analysis"):
             st.switch_page("pages/ai_analysis.py")
+        
+        st.markdown("""
+        ### 📊 Review Analysis
+        - Explore completed analysis runs
+        - View detailed results by criteria/company
+        - Download comprehensive reports
+        - Track analysis history
+        """)
+        if st.button("Review Results", key="review_analysis"):
+            st.switch_page("pages/review_analysis.py")
     
     # Getting started section
     st.markdown("---")
@@ -97,7 +111,7 @@ def main():
         Navigate to **AI Analysis** to perform automated evaluations using the RAG system.
         
         ### Step 4: Review Results 📊
-        Examine AI-generated analysis, evidence, and comprehensive evaluation reports.
+        Navigate to **Review Analysis** to explore completed analysis runs, view detailed results, and download comprehensive reports.
         """)
     
     # System status

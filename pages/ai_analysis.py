@@ -110,6 +110,8 @@ def main():
             st.switch_page("pages/document_processing.py")
         if st.button("📋 Criteria Management"):
             st.switch_page("pages/criteria_management.py")
+        if st.button("📊 Review Analysis"):
+            st.switch_page("pages/review_analysis.py")
         if st.button("📚 Help & Documentation"):
             st.switch_page("pages/help.py")
 
@@ -117,96 +119,14 @@ def main():
     st.title("🔍 AI Analysis Platform")
     st.markdown("### Perform AI-powered analysis on company documents using Snowflake Cortex")
 
-    # Historical results section
-    with st.expander("📚 View Historical Analysis Results", expanded=False):
-        st.markdown("#### Previous Analysis Runs")
-        
-        try:
-            session = st.connection("snowflake").session()
-            
-            # Get recent runs
-            recent_runs = session.sql("""
-            SELECT 
-                RUN_ID,
-                COUNT(DISTINCT CRITERIA_ID) as criteria_count,
-                COUNT(DISTINCT DATA_SOURCE) as companies_analyzed,
-                COUNT(*) as total_analyses,
-                MIN(OUTPUT:timestamp::string) as run_timestamp
-            FROM cortex_output 
-            WHERE RUN_ID IS NOT NULL
-            GROUP BY RUN_ID
-            ORDER BY MIN(OUTPUT:timestamp::timestamp_ntz) DESC
-            LIMIT 10
-            """).collect()
-            
-            if recent_runs:
-                # Display recent runs
-                runs_data = []
-                for run in recent_runs:
-                    runs_data.append({
-                        'Run ID': run['RUN_ID'],
-                        'Criteria': run['CRITERIA_COUNT'],
-                        'Companies': run['COMPANIES_ANALYZED'],
-                        'Total Analyses': run['TOTAL_ANALYSES'],
-                        'Timestamp': run['RUN_TIMESTAMP']
-                    })
-                
-                runs_df = pd.DataFrame(runs_data)
-                st.dataframe(runs_df, use_container_width=True)
-                
-                # Select a run to view details
-                selected_run = st.selectbox(
-                    "Select a run to view detailed results:",
-                    options=[''] + [run['RUN_ID'] for run in recent_runs],
-                    format_func=lambda x: f"{x} - {next((str(r['CRITERIA_COUNT']) + ' criteria × ' + str(r['COMPANIES_ANALYZED']) + ' companies' for r in recent_runs if r['RUN_ID'] == x), '')}" if x else "Select a run..."
-                )
-                
-                if selected_run:
-                    # Display detailed results for selected run
-                    detailed_results = session.sql(f"""
-                    SELECT 
-                        CRITERIA_ID,
-                        CRITERIA_VERSION,
-                        DATA_SOURCE as company,
-                        QUESTION,
-                        RESULT,
-                        JUSTIFICATION,
-                        EVIDENCE,
-                        OUTPUT:timestamp::string as timestamp
-                    FROM cortex_output 
-                    WHERE RUN_ID = '{selected_run}'
-                    ORDER BY CRITERIA_ID, DATA_SOURCE
-                    """).collect()
-                    
-                    if detailed_results:
-                        st.markdown(f"#### Results for Run: `{selected_run}`")
-                        
-                        # Group by criteria for better display
-                        criteria_groups = {}
-                        for result in detailed_results:
-                            criteria_key = f"{result['CRITERIA_ID']} ({result['CRITERIA_VERSION']})"
-                            if criteria_key not in criteria_groups:
-                                criteria_groups[criteria_key] = []
-                            criteria_groups[criteria_key].append(result)
-                        
-                        for criteria_name, criteria_results in criteria_groups.items():
-                            st.markdown(f"##### 📋 {criteria_name}")
-                            
-                            for result in criteria_results:
-                                with st.expander(f"🏢 {result['COMPANY']}", expanded=False):
-                                    st.markdown(f"**Question:** {result['QUESTION']}")
-                                    st.markdown(f"**Timestamp:** {result['TIMESTAMP']}")
-                                    st.markdown("**Result:**")
-                                    st.markdown(result['RESULT'])
-                                    if result['EVIDENCE']:
-                                        st.markdown(f"**Evidence:** {result['EVIDENCE']}")
-                            st.markdown("---")
-            else:
-                st.info("No previous analysis runs found. Run your first analysis below!")
-                
-        except Exception as e:
-            st.warning(f"Could not load historical results: {e}")
-
+    # Quick link to review results
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.info("📊 **View Results:** Explore completed analyses and detailed results on the Review Analysis page.")
+    with col2:
+        if st.button("📊 Review Results", type="secondary"):
+            st.switch_page("pages/review_analysis.py")
+    
     st.markdown("---")
 
     # Analysis configuration section
