@@ -4,11 +4,8 @@
 -- Called from Streamlit app for on-demand processing
 -- ================================================================
 
--- Set context (assuming infrastructure is already setup)
-USE ROLE top_200_role;
-USE WAREHOUSE top_200_wh;
-USE DATABASE top_200_db;
-USE SCHEMA top_200_schema;
+-- Context is already set by Streamlit app deployment
+-- Running in: top_200_db.top_200_schema with top_200_wh warehouse
 
 -- ================================================================
 -- STEP 1: PARSE NEW DOCUMENTS
