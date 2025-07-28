@@ -5,4 +5,5 @@ dependencies:
   - streamlit
   - pandas
   - snowflake-snowpark-python
-  - snowflake-ml-python 
+  - snowflake-ml-python
+  - lxml 
