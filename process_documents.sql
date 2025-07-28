@@ -85,10 +85,8 @@ WHERE parsed_content_ocr:content::string IS NOT NULL
 -- Refresh the search index with new content
 -- ================================================================
 
--- Drop and recreate the Cortex Search service to include new documents
-DROP CORTEX SEARCH SERVICE IF EXISTS cortex_search_service_ocr;
-
-CREATE CORTEX SEARCH SERVICE cortex_search_service_ocr
+-- Create or replace the Cortex Search service to include new documents
+CREATE OR REPLACE CORTEX SEARCH SERVICE cortex_search_service_ocr
     ON final_chunk_ocr
     ATTRIBUTES language, company_name, year
     WAREHOUSE = top_200_wh
