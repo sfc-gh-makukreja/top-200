@@ -206,6 +206,8 @@ def main():
                                 'Company': result['COMPANY'],
                                 'Question': result['QUESTION'],
                                 'Result': result['RESULT'],
+                                'Justification': result['JUSTIFICATION'],
+                                'Evidence': result['EVIDENCE'],
                                 'Timestamp': result['TIMESTAMP']
                             })
                         
