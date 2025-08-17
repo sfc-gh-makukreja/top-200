@@ -33,12 +33,12 @@ def main():
     # Professional introduction
     st.markdown("""
     <div style="text-align: center; margin: 30px 0;">
-        <h3>Comprehensive AI-powered analysis platform for evaluating ESG performance</h3>
+        <h3>AI-powered ESG performance analysis platform</h3>
         <p style="font-size: 16px; color: #666;">
             Supporting the <a href="https://top200.co.nz/" target="_blank" style="color: #86BC25; text-decoration: none;">
             <strong><img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Deloitte_Logo.png" 
-                 alt="Deloitte" style="height: 50px; margin-right: 20px;"> Top 200 Awards</strong></a> - Powered by <img src="https://logos-world.net/wp-content/uploads/2022/11/Snowflake-Logo.png" 
-                 alt="Snowflake" style="height: 50px;"> Cortex AI.
+                 alt="Deloitte" style="height: 50px;"> Top 200 Awards</strong></a> - Powered by <img src="https://logos-world.net/wp-content/uploads/2022/11/Snowflake-Logo.png" 
+                 alt="Snowflake" style="height: 50px;">
         </p>
     </div>
     """, unsafe_allow_html=True)
