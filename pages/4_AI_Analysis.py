@@ -79,7 +79,8 @@ def get_active_criteria():
                 ID,
                 VERSION,
                 CRITERIA_PROMPT,
-                QUESTION
+                QUESTION,
+                WEIGHT
             FROM input_criteria 
             WHERE ACTIVE = TRUE
             ORDER BY ID, VERSION
@@ -92,6 +93,7 @@ def get_active_criteria():
                 'version': row['VERSION'],
                 'prompt': row['CRITERIA_PROMPT'],
                 'question': row['QUESTION'],
+                'weight': row['WEIGHT'] if row['WEIGHT'] is not None else 1.0,
                 'display_name': f"{row['ID']} ({row['VERSION']})"
             })
         return criteria_list
@@ -162,7 +164,7 @@ def main():
         for criteria in selected_criteria:
             st.markdown(f"**{criteria['display_name']}**")
             st.markdown(f"- **Question:** {criteria['question']}")
-            st.markdown(f"- **Prompt:** {criteria['prompt'][:200]}..." if len(criteria['prompt']) > 200 else f"- **Prompt:** {criteria['prompt']}")
+            st.markdown(f"- **Prompt:** {criteria['prompt']}")
             st.markdown("---")
 
     # Company selection options
@@ -269,7 +271,7 @@ def run_analysis(selected_criteria, companies):
                 # Run RAG analysis
                 with st.spinner(f"Processing {criteria['display_name']} for {company}..."):
                     result = rag(criteria['prompt'], company)
-                    
+                    result = json.loads(result)
                     # Save to cortex_output table
                     try:
                         # Use actual criteria data
@@ -277,8 +279,9 @@ def run_analysis(selected_criteria, companies):
                         criteria_version = criteria['version']
                         criteria_prompt = criteria['prompt']
                         question = criteria['question']
-                        justification = "AI-generated analysis using RAG system with Cortex Search"
-                        evidence = f"Documents from {company}"
+                        
+                        justification = result['explanation']
+                        evidence = result['supporting_evidence']
                         data_source = company
                         
                         # Create output JSON
@@ -288,7 +291,7 @@ def run_analysis(selected_criteria, companies):
                             "criteria_version": criteria_version,
                             "question": question,
                             "prompt": criteria_prompt,
-                            "result": result,
+                            "result": result['result'],
                             "timestamp": datetime.datetime.now().isoformat(),
                             "run_id": run_id,
                             "analysis_type": "criteria_based_rag"
@@ -315,7 +318,10 @@ def run_analysis(selected_criteria, companies):
                             'status': 'success',
                             'run_id': run_id,
                             'criteria_id': criteria_id,
-                            'question': question
+                            'question': question,
+                            'weight': criteria.get('weight', 1.0),
+                            'justification': justification,
+                            'supporting_evidence': evidence
                         })
                         
                     except Exception as db_error:
@@ -327,7 +333,10 @@ def run_analysis(selected_criteria, companies):
                             'status': 'success_no_save',
                             'run_id': run_id,
                             'criteria_id': criteria['id'],
-                            'question': question
+                            'question': question,
+                            'weight': criteria.get('weight', 1.0),
+                            'justification': justification,
+                            'supporting_evidence': evidence
                         })
                     
             except Exception as e:
@@ -367,7 +376,10 @@ def run_analysis(selected_criteria, companies):
                     'status': 'error',
                     'run_id': run_id,
                     'criteria_id': criteria['id'],
-                    'question': criteria['question']
+                    'question': criteria['question'],
+                    'weight': criteria.get('weight', 1.0),
+                    'justification': 'Analysis failed',
+                    'supporting_evidence': f"Error processing documents from {company}"
                 })
     
     # Clear progress indicators
@@ -414,14 +426,16 @@ def run_analysis(selected_criteria, companies):
             st.markdown("---")
     
     elif display_mode == "📊 Summary Table":
-        # Create summary dataframe
+        # Create summary dataframe with expected format
         summary_data = []
         for result in results:
             summary_data.append({
-                'Criteria': result['criteria'],
                 'Company': result['company'],
-                'Status': '✅ Success' if result['status'] == 'success' else '❌ Error',
-                'Result Preview': result['result'][:200] + "..." if len(result['result']) > 200 else result['result']
+                'Result': result['result'],
+                'Justification': result.get('justification', 'AI-generated analysis'),
+                'Supporting Evidence': result.get('supporting_evidence', f"Documents from {result['company']}"),
+                'Weighting': result.get('weight', 1.0),
+                'Status': '✅ Success' if result['status'] == 'success' else '❌ Error'
             })
         
         df = pd.DataFrame(summary_data)
@@ -464,13 +478,11 @@ def run_analysis(selected_criteria, companies):
                 csv_data = []
                 for result in results:
                     csv_data.append({
-                        'Run_ID': result.get('run_id', ''),
-                        'Criteria_ID': result.get('criteria_id', ''),
-                        'Criteria': result['criteria'],
                         'Company': result['company'],
-                        'Question': result.get('question', ''),
-                        'Result': result['result'],
-                        'Status': result['status']
+                        'Result': result['result'] if result['status'] == 'success' else 'Error',
+                        'Justification': result.get('justification', 'AI-generated analysis using RAG system with Cortex Search'),
+                        'Supporting_Evidence': result.get('supporting_evidence', result.get('evidence', f"Documents from {result['company']}")),
+                        'Weighting': result.get('weight', 1.0)
                     })
                 
                 csv_df = pd.DataFrame(csv_data)

@@ -205,7 +205,7 @@ def main():
                                 'Criteria': f"{result['CRITERIA_ID']} ({result['CRITERIA_VERSION']})",
                                 'Company': result['COMPANY'],
                                 'Question': result['QUESTION'],
-                                'Result Preview': result['RESULT'][:150] + "..." if len(result['RESULT']) > 150 else result['RESULT'],
+                                'Result': result['RESULT'],
                                 'Timestamp': result['TIMESTAMP']
                             })
                         
