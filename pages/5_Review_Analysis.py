@@ -103,7 +103,7 @@ def main():
             selected_run = st.selectbox(
                 "Select a run to view detailed results:",
                 options=[''] + [run['RUN_ID'] for run in recent_runs],
-                format_func=lambda x: f"{x} - {next((str(r['CRITERIA_COUNT']) + ' criteria × ' + str(r['COMPANIES_ANALYZED']) + ' companies (' + r['RUN_TIMESTAMP'][:10] + ')' for r in recent_runs if r['RUN_ID'] == x), '')}" if x else "Select a run..."
+                format_func=lambda x: f"{x} - {next((str(r['CRITERIA_COUNT']) + ' criteria × ' + str(r['COMPANIES_ANALYZED']) + ' companies (' + r['RUN_TIMESTAMP'] + ')' for r in recent_runs if r['RUN_ID'] == x), '')}" if x else "Select a run..."
             )
             
             if selected_run:
