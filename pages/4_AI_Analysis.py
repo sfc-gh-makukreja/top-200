@@ -1,4 +1,3 @@
-from unittest import result
 import streamlit as st
 import pandas as pd
 
@@ -280,9 +279,9 @@ def run_analysis(selected_criteria, companies):
                         criteria_version = criteria['version']
                         criteria_prompt = criteria['prompt']
                         question = criteria['question']
-                        
+                        result = rag_output['result']
                         justification = rag_output['explanation']
-                        evidence = rag_output['supporting_evidence']
+                        evidence = json.dumps(rag_output['supporting_evidence'])
                         data_source = company
                         
                         # Create output JSON
@@ -292,7 +291,7 @@ def run_analysis(selected_criteria, companies):
                             "criteria_version": criteria_version,
                             "question": question,
                             "prompt": criteria_prompt,
-                            "result": rag_output['result'],
+                            "result": result,
                             "timestamp": datetime.datetime.now().isoformat(),
                             "run_id": run_id,
                             "analysis_type": "criteria_based_rag"
@@ -315,7 +314,7 @@ def run_analysis(selected_criteria, companies):
                         results.append({
                             'criteria': criteria['display_name'],
                             'company': company,
-                            'result': rag_output['result'],
+                            'result': result,
                             'status': 'success',
                             'run_id': run_id,
                             'criteria_id': criteria_id,
