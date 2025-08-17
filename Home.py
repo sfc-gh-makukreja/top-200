@@ -1,43 +1,47 @@
 import streamlit as st
 
+
 # Page configuration
 st.set_page_config(
-    page_title="Top 200 Companies - AI Analysis Platform",
+    page_title="Deloitte Top 200 Awards - AI Analysis Platform",
     page_icon="🏢",
     layout="wide"
 )
 
 def main():
-    # Sidebar navigation
-    with st.sidebar:
-        st.title("🏢 Top 200 App")
-        st.markdown("### 📑 Navigation")
-        st.markdown("Use the **pages** menu in the upper left to navigate:")
-        st.markdown("- **🏠 Home** (Current)")
-        st.markdown("- **📄 Document Processing**")
-        st.markdown("- **📋 Criteria Management**")
-        st.markdown("- **📰 Media Scan Management**")
-        st.markdown("- **🔍 AI Analysis**")
-        st.markdown("- **📊 Review Analysis**")
-        st.markdown("- **📚 Help & Documentation**")
-        st.markdown("---")
-        st.markdown("### 🔗 Quick Links")
-        if st.button("📄 Upload Documents", type="primary"):
-            st.switch_page("pages/document_processing.py")
-        if st.button("📋 Manage Criteria", type="secondary"):
-            st.switch_page("pages/criteria_management.py")
-        if st.button("📰 Media Scan", type="secondary"):
-            st.switch_page("pages/media_scan_management.py")
-        if st.button("🔍 AI Analysis", type="secondary"):
-            st.switch_page("pages/ai_analysis.py")
-        if st.button("📊 Review Analysis", type="secondary"):
-            st.switch_page("pages/review_analysis.py")
-        if st.button("📚 View Help", type="secondary"):
-            st.switch_page("pages/help.py")
-
-    # Main content
-    st.title("🏢 Top 200 Companies - AI Analysis Platform")
-    st.markdown("### Welcome to the comprehensive AI-powered analysis platform for evaluating company sustainability and ESG performance.")
+    # # Professional header with Deloitte and Snowflake branding
+    # col1, col3 = st.columns([1, 1])
+    
+    # with col1:
+    #     # Deloitte logo
+    #     st.markdown("""
+    #     <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            
+    #     </div>
+    #     """, unsafe_allow_html=True)
+    
+    # with col3:
+    #     # Snowflake logo
+    #     st.markdown("""
+    #     <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 20px;">
+    #         <img src="https://logos-world.net/wp-content/uploads/2022/11/Snowflake-Logo.png" 
+    #              alt="Snowflake" style="height: 50px;">
+    #     </div>
+    #     """, unsafe_allow_html=True)
+    
+ 
+    # Professional introduction
+    st.markdown("""
+    <div style="text-align: center; margin: 30px 0;">
+        <h3>AI-powered ESG performance analysis platform</h3>
+        <p style="font-size: 16px; color: #666;">
+            Supporting the <a href="https://top200.co.nz/" target="_blank" style="color: #86BC25; text-decoration: none;">
+            <strong><img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Deloitte_Logo.png" 
+                 alt="Deloitte" style="height: 50px;"> Top 200 Awards</strong></a> - Powered by <img src="https://logos-world.net/wp-content/uploads/2022/11/Snowflake-Logo.png" 
+                 alt="Snowflake" style="height: 50px;">
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Feature overview
     col1, col2, col3 = st.columns(3)
@@ -51,7 +55,7 @@ def main():
         - Automated document analysis
         """)
         if st.button("Start Processing", key="doc_process"):
-            st.switch_page("pages/document_processing.py")
+            st.switch_page("pages/1_Document_Processing.py")
         
         st.markdown("""
         ### 📰 Media Scan Management
@@ -61,7 +65,7 @@ def main():
         - Export and audit records
         """)
         if st.button("Manage Media Scan", key="media_scan_mgmt"):
-            st.switch_page("pages/media_scan_management.py")
+            st.switch_page("pages/2_Media_Scan_Management.py")
     
     with col2:
         st.markdown("""
@@ -72,7 +76,7 @@ def main():
         - Role-based AI prompts
         """)
         if st.button("Manage Criteria", key="criteria_mgmt"):
-            st.switch_page("pages/criteria_management.py")
+            st.switch_page("pages/3_Criteria_Management.py")
     
     with col3:
         st.markdown("""
@@ -83,7 +87,7 @@ def main():
         - Deloitte methodology
         """)
         if st.button("Start Analysis", key="ai_analysis"):
-            st.switch_page("pages/ai_analysis.py")
+            st.switch_page("pages/4_AI_Analysis.py")
         
         st.markdown("""
         ### 📊 Review Analysis
@@ -93,7 +97,7 @@ def main():
         - Track analysis history
         """)
         if st.button("Review Results", key="review_analysis"):
-            st.switch_page("pages/review_analysis.py")
+            st.switch_page("pages/5_Review_Analysis.py")
     
     # Getting started section
     st.markdown("---")
@@ -104,13 +108,16 @@ def main():
         ### Step 1: Upload Documents 📄
         Navigate to **Document Processing** and upload PDF annual reports for analysis.
         
-        ### Step 2: Define Criteria 📋
+        ### Step 2: Manage Media Coverage 📰
+        Use **Media Scan Management** to track company disqualification topics.
+        
+        ### Step 3: Define Criteria 📋
         Go to **Criteria Management** to set up evaluation questions and AI prompts.
         
-        ### Step 3: Run Analysis 🔍
+        ### Step 4: Run Analysis 🔍
         Navigate to **AI Analysis** to perform automated evaluations using the RAG system.
         
-        ### Step 4: Review Results 📊
+        ### Step 5: Review Results 📊
         Navigate to **Review Analysis** to explore completed analysis runs, view detailed results, and download comprehensive reports.
         """)
     

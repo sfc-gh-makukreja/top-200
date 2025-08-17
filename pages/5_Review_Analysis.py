@@ -9,23 +9,10 @@ st.set_page_config(
 )
 
 def main():
-    # Sidebar navigation
-    with st.sidebar:
-        st.title("📊 Review Analysis")
-        st.markdown("### 📑 Navigation")
-        if st.button("🏠 Back to Home"):
-            st.switch_page("streamlit_app.py")
-        if st.button("📄 Document Processing"):
-            st.switch_page("pages/document_processing.py")
-        if st.button("📋 Criteria Management"):
-            st.switch_page("pages/criteria_management.py")
-        if st.button("🔍 AI Analysis"):
-            st.switch_page("pages/ai_analysis.py")
-        if st.button("📚 Help & Documentation"):
-            st.switch_page("pages/help.py")
+
 
     # Main content
-    st.title("📊 Review Analysis Results")
+    st.title("Review Analysis Results")
     st.markdown("### Explore and analyze your AI-powered company evaluations")
 
     try:
@@ -218,7 +205,9 @@ def main():
                                 'Criteria': f"{result['CRITERIA_ID']} ({result['CRITERIA_VERSION']})",
                                 'Company': result['COMPANY'],
                                 'Question': result['QUESTION'],
-                                'Result Preview': result['RESULT'][:150] + "..." if len(result['RESULT']) > 150 else result['RESULT'],
+                                'Result': result['RESULT'],
+                                'Justification': result['JUSTIFICATION'],
+                                'Evidence': result['EVIDENCE'],
                                 'Timestamp': result['TIMESTAMP']
                             })
                         

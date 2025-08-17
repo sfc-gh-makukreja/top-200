@@ -8,7 +8,7 @@ st.set_page_config(
 )
 
 def main():
-    st.title("❓ Help & Documentation")
+    st.title("Help & Documentation")
     st.markdown("Complete guide to using the Top 200 Companies application")
     
     # Sidebar navigation
