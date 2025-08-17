@@ -17,7 +17,7 @@ def main():
         st.markdown("""
         <div style="display: flex; align-items: center; margin-bottom: 20px;">
             <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Deloitte_Logo.png" 
-                 alt="Deloitte" style="height: 40px; margin-right: 20px;">
+                 alt="Deloitte" style="height: 50px; margin-right: 20px;">
         </div>
         """, unsafe_allow_html=True)
     
@@ -26,18 +26,11 @@ def main():
         st.markdown("""
         <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 20px;">
             <img src="https://logos-world.net/wp-content/uploads/2022/11/Snowflake-Logo.png" 
-                 alt="Snowflake" style="height: 35px;">
+                 alt="Snowflake" style="height: 50px;">
         </div>
         """, unsafe_allow_html=True)
     
-    # Centered title section
-    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    st.title("Top 200 Awards - AI Analysis Platform")
-    st.markdown("**Powered by Snowflake Cortex AI**")
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
+ 
     # Professional introduction
     st.markdown("""
     <div style="text-align: center; margin: 30px 0;">
