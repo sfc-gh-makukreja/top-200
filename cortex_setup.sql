@@ -180,27 +180,27 @@ CREATE CORTEX SEARCH SERVICE IF NOT EXISTS cortex_search_service_ocr
 --    GRANT READ ON SECRET sfc_gh_makukreja_pat TO ROLE top_200_role;
 
 -- Create Git repository (assumes SFC_GH_MAKUKREJA_INTEGRATION exists, if not create it first see instructions above)
-CREATE OR REPLACE GIT REPOSITORY top_200_repo
-  API_INTEGRATION = SFC_GH_MAKUKREJA_INTEGRATION
-  ORIGIN = 'https://github.com/sfc-gh-makukreja/top-200.git';
+-- CREATE OR REPLACE GIT REPOSITORY top_200_repo
+--   API_INTEGRATION = SFC_GH_MAKUKREJA_INTEGRATION
+--   ORIGIN = 'https://github.com/sfc-gh-makukreja/top-200.git';
 
 -- Verify repository connection (function not available in this version)
 -- SELECT SYSTEM$GIT_REPOSITORY_VALIDATE('top_200_repo') AS git_validation_status;
 
 -- Create Streamlit app from Git repository
 CREATE OR REPLACE STREAMLIT  IDENTIFIER('"TOP_200_DB"."TOP_200_SCHEMA"."top_200_app"') 
-  FROM '@"TOP_200_DB"."TOP_200_SCHEMA"."TOP_200_REPO"/branches/"main"/' 
-  MAIN_FILE = 'streamlit_app.py'
+  FROM '@"TOP_200_DB"."TOP_200_SCHEMA"."TOP_200_REPO"/branches/"fix-navigation-and-branding"/' 
+  MAIN_FILE = 'Home.py'
   QUERY_WAREHOUSE = top_200_wh
   TITLE = 'Top 200 Companies';
 
 -- Show created objects
-SHOW GIT REPOSITORIES LIKE 'top_200_repo';
-SHOW STREAMLITS LIKE 'top_200_app';
+-- SHOW GIT REPOSITORIES LIKE 'top_200_repo';
+-- SHOW STREAMLITS LIKE 'top_200_app';
 
 -- Display success message
-SELECT 'Git integration and Streamlit app created successfully!' as status,
-       'Navigate to Snowsight → Streamlit to access your app' as next_step;
+-- SELECT 'Git integration and Streamlit app created successfully!' as status,
+    --    'Navigate to Snowsight → Streamlit to access your app' as next_step;
 
 -- once new code is pushed to the repo, run the following command to pull the latest changes
 -- ALTER STREAMLIT "TOP_200_DB"."TOP_200_SCHEMA"."top_200_app" COMMIT;

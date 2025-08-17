@@ -1,0 +1,14 @@
+definition_version: 2
+entities:
+  top_200_app:
+    type: streamlit
+    identifier: top_200_app
+    stage: stage
+    query_warehouse: TOP_200_WH
+    title: "Deloitte Top 200 Awards - AI Analysis Platform"
+    main_file: Home.py
+    artifacts:
+      - Home.py
+      - environment.yml
+      - utils.py
+      - pages/

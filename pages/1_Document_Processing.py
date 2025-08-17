@@ -8,7 +8,7 @@ from utils import process_all_documents as process_docs, get_processing_summary
 
 # Page configuration
 st.set_page_config(
-    page_title="Document Processing - Top 200 Companies",
+    page_title="Document Processing - Deloitte Top 200 Awards",
     page_icon="📄",
     layout="wide"
 )
@@ -124,25 +124,9 @@ def process_all_documents(session: Session) -> None:
                 st.info(message)
 
 def main():
-    # Sidebar navigation info
-    with st.sidebar:
-        st.title("🏢 Top 200 App")
-        st.markdown("### 📑 Available Pages")
-        st.markdown("- **Document Processing** (Current)")
-        st.markdown("- **Criteria Management** (Go to pages → criteria_management)")
-        st.markdown("- **Help & Documentation** (Go to pages → help)")
-        st.markdown("---")
-        st.markdown("### 💡 Quick Help")
-        st.markdown("1. Upload PDF documents")
-        st.markdown("2. Process them with AI")  
-        st.markdown("3. Manage evaluation criteria")
-        st.markdown("4. Run analysis queries")
-        st.markdown("---")
-        st.markdown("### 🆕 New Features")
-        st.success("✨ **Criteria Management** - Define custom evaluation criteria for AI analysis")
-        st.info("📚 **Help Documentation** - Complete user guide available")
+
     
-    st.title("📄 Document Upload & Processing")
+    st.title("Document Upload & Processing")
     st.markdown("Upload annual reports and make them searchable with Snowflake Cortex AI")
     
     # Initialize session

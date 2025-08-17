@@ -1,43 +1,19 @@
 import streamlit as st
 
+
 # Page configuration
 st.set_page_config(
-    page_title="Top 200 Companies - AI Analysis Platform",
+    page_title="Deloitte Top 200 Awards - AI Analysis Platform",
     page_icon="🏢",
     layout="wide"
 )
 
 def main():
-    # Sidebar navigation
-    with st.sidebar:
-        st.title("🏢 Top 200 App")
-        st.markdown("### 📑 Navigation")
-        st.markdown("Use the **pages** menu in the upper left to navigate:")
-        st.markdown("- **🏠 Home** (Current)")
-        st.markdown("- **📄 Document Processing**")
-        st.markdown("- **📋 Criteria Management**")
-        st.markdown("- **📰 Media Scan Management**")
-        st.markdown("- **🔍 AI Analysis**")
-        st.markdown("- **📊 Review Analysis**")
-        st.markdown("- **📚 Help & Documentation**")
-        st.markdown("---")
-        st.markdown("### 🔗 Quick Links")
-        if st.button("📄 Upload Documents", type="primary"):
-            st.switch_page("pages/document_processing.py")
-        if st.button("📋 Manage Criteria", type="secondary"):
-            st.switch_page("pages/criteria_management.py")
-        if st.button("📰 Media Scan", type="secondary"):
-            st.switch_page("pages/media_scan_management.py")
-        if st.button("🔍 AI Analysis", type="secondary"):
-            st.switch_page("pages/ai_analysis.py")
-        if st.button("📊 Review Analysis", type="secondary"):
-            st.switch_page("pages/review_analysis.py")
-        if st.button("📚 View Help", type="secondary"):
-            st.switch_page("pages/help.py")
 
     # Main content
-    st.title("🏢 Top 200 Companies - AI Analysis Platform")
-    st.markdown("### Welcome to the comprehensive AI-powered analysis platform for evaluating company sustainability and ESG performance.")
+    st.title("Deloitte Top 200 Awards - AI Analysis Platform")
+    st.markdown("### Powered by Snowflake Cortex AI")
+    st.markdown("Welcome to the comprehensive AI-powered analysis platform for evaluating company sustainability and ESG performance for the [Deloitte Top 200 Awards](https://top200.co.nz/).")
     
     # Feature overview
     col1, col2, col3 = st.columns(3)

@@ -7,7 +7,7 @@ import time
 
 # Page configuration
 st.set_page_config(
-    page_title="Media Scan Management",
+    page_title="Media Scan Management - Deloitte Top 200 Awards",
     page_icon="📰",
     layout="wide"
 )
@@ -149,7 +149,7 @@ def media_scan_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, 
     return None
 
 def main():
-    st.title("📰 Media Scan Management")
+    st.title("Media Scan Management")
     st.markdown("Manage company media scan records and disqualification topics")
     
     # Initialize session
