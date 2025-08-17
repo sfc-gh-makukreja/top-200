@@ -100,20 +100,6 @@ def get_active_criteria():
         return []
 
 def main():
-    # Sidebar navigation
-    with st.sidebar:
-        st.title("🔍 AI Analysis")
-        st.markdown("### 📑 Navigation")
-        if st.button("🏠 Back to Home"):
-            st.switch_page("streamlit_app.py")
-        if st.button("📄 Document Processing"):
-            st.switch_page("pages/document_processing.py")
-        if st.button("📋 Criteria Management"):
-            st.switch_page("pages/criteria_management.py")
-        if st.button("📊 Review Analysis"):
-            st.switch_page("pages/review_analysis.py")
-        if st.button("📚 Help & Documentation"):
-            st.switch_page("pages/help.py")
 
     # Main content
     st.title("🔍 AI Analysis Platform")

@@ -188,11 +188,11 @@ CREATE CORTEX SEARCH SERVICE IF NOT EXISTS cortex_search_service_ocr
 -- SELECT SYSTEM$GIT_REPOSITORY_VALIDATE('top_200_repo') AS git_validation_status;
 
 -- Create Streamlit app from Git repository
-CREATE OR REPLACE STREAMLIT  IDENTIFIER('"TOP_200_DB"."TOP_200_SCHEMA"."top_200_app"') 
-  FROM '@"TOP_200_DB"."TOP_200_SCHEMA"."TOP_200_REPO"/branches/"fix-navigation-and-branding"/' 
-  MAIN_FILE = 'Home.py'
-  QUERY_WAREHOUSE = top_200_wh
-  TITLE = 'Top 200 Companies';
+-- CREATE OR REPLACE STREAMLIT  IDENTIFIER('"TOP_200_DB"."TOP_200_SCHEMA"."top_200_app"') 
+--   FROM '@"TOP_200_DB"."TOP_200_SCHEMA"."TOP_200_REPO"/branches/"main"/' 
+--   MAIN_FILE = 'Home.py'
+--   QUERY_WAREHOUSE = top_200_wh
+--   TITLE = 'Top 200 Companies';
 
 -- Show created objects
 -- SHOW GIT REPOSITORIES LIKE 'top_200_repo';

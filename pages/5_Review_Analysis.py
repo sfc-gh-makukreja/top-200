@@ -9,20 +9,7 @@ st.set_page_config(
 )
 
 def main():
-    # Sidebar navigation
-    with st.sidebar:
-        st.title("📊 Review Analysis")
-        st.markdown("### 📑 Navigation")
-        if st.button("🏠 Back to Home"):
-            st.switch_page("streamlit_app.py")
-        if st.button("📄 Document Processing"):
-            st.switch_page("pages/document_processing.py")
-        if st.button("📋 Criteria Management"):
-            st.switch_page("pages/criteria_management.py")
-        if st.button("🔍 AI Analysis"):
-            st.switch_page("pages/ai_analysis.py")
-        if st.button("📚 Help & Documentation"):
-            st.switch_page("pages/help.py")
+
 
     # Main content
     st.title("📊 Review Analysis Results")
