@@ -295,7 +295,7 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
     return None
 
 def main():
-    st.title("⚙️ Criteria Management")
+    st.title("Criteria Management")
     st.markdown("Manage evaluation criteria for document analysis")
     
     # Initialize session

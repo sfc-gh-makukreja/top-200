@@ -102,7 +102,7 @@ def get_active_criteria():
 def main():
 
     # Main content
-    st.title("🔍 AI Analysis Platform")
+    st.title("AI Analysis Platform")
     st.markdown("### Perform AI-powered analysis on company documents using Snowflake Cortex")
 
     # Quick link to review results

@@ -12,7 +12,7 @@ def main():
 
 
     # Main content
-    st.title("📊 Review Analysis Results")
+    st.title("Review Analysis Results")
     st.markdown("### Explore and analyze your AI-powered company evaluations")
 
     try:
