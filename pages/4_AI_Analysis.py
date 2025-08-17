@@ -1,3 +1,4 @@
+from unittest import result
 import streamlit as st
 import pandas as pd
 
@@ -113,7 +114,7 @@ def main():
         st.info("📊 **View Results:** Explore completed analyses and detailed results on the Review Analysis page.")
     with col2:
         if st.button("📊 Review Results", type="secondary"):
-            st.switch_page("pages/review_analysis.py")
+            st.switch_page("pages/5_Review_Analysis.py")
     
     st.markdown("---")
 
@@ -270,8 +271,8 @@ def run_analysis(selected_criteria, companies):
             try:
                 # Run RAG analysis
                 with st.spinner(f"Processing {criteria['display_name']} for {company}..."):
-                    result = rag(criteria['prompt'], company)
-                    result = json.loads(result)
+                    rag_output = rag(criteria['prompt'], company)
+                    rag_output = json.loads(rag_output)
                     # Save to cortex_output table
                     try:
                         # Use actual criteria data
@@ -280,8 +281,8 @@ def run_analysis(selected_criteria, companies):
                         criteria_prompt = criteria['prompt']
                         question = criteria['question']
                         
-                        justification = result['explanation']
-                        evidence = result['supporting_evidence']
+                        justification = rag_output['explanation']
+                        evidence = rag_output['supporting_evidence']
                         data_source = company
                         
                         # Create output JSON
@@ -291,7 +292,7 @@ def run_analysis(selected_criteria, companies):
                             "criteria_version": criteria_version,
                             "question": question,
                             "prompt": criteria_prompt,
-                            "result": result['result'],
+                            "result": rag_output['result'],
                             "timestamp": datetime.datetime.now().isoformat(),
                             "run_id": run_id,
                             "analysis_type": "criteria_based_rag"
@@ -314,7 +315,7 @@ def run_analysis(selected_criteria, companies):
                         results.append({
                             'criteria': criteria['display_name'],
                             'company': company,
-                            'result': result,
+                            'result': rag_output['result'],
                             'status': 'success',
                             'run_id': run_id,
                             'criteria_id': criteria_id,
@@ -329,7 +330,7 @@ def run_analysis(selected_criteria, companies):
                         results.append({
                             'criteria': criteria['display_name'],
                             'company': company,
-                            'result': result,
+                            'result': rag_output['result'],
                             'status': 'success_no_save',
                             'run_id': run_id,
                             'criteria_id': criteria['id'],
@@ -342,46 +343,6 @@ def run_analysis(selected_criteria, companies):
             except Exception as e:
                 st.error(f"❌ Error analyzing {criteria['display_name']} for {company}: {str(e)}")
                 
-                # Still try to save error to database
-                try:
-                    error_output = {
-                        "company": company,
-                        "criteria_id": criteria['id'],
-                        "criteria_version": criteria['version'],
-                        "question": criteria['question'],
-                        "prompt": criteria['prompt'],
-                        "error": str(e),
-                        "timestamp": datetime.datetime.now().isoformat(),
-                        "run_id": run_id,
-                        "analysis_type": "criteria_based_rag_error"
-                    }
-                    
-                    session.sql("""
-                    INSERT INTO cortex_output (
-                        criteria_id, criteria_version, criteria_prompt, question,
-                        run_id, result, justification, evidence, data_source, output
-                    ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, PARSE_JSON(?)
-                    """, [
-                        criteria['id'], criteria['version'], criteria['prompt'], criteria['question'],
-                        run_id, f"Error: {str(e)}", "Analysis failed", company, company,
-                        json.dumps(error_output)
-                    ]).collect()
-                except:
-                    pass  # If database save fails, continue
-                
-                results.append({
-                    'criteria': criteria['display_name'],
-                    'company': company,
-                    'result': f"Error: {str(e)}",
-                    'status': 'error',
-                    'run_id': run_id,
-                    'criteria_id': criteria['id'],
-                    'question': criteria['question'],
-                    'weight': criteria.get('weight', 1.0),
-                    'justification': 'Analysis failed',
-                    'supporting_evidence': f"Error processing documents from {company}"
-                })
-    
     # Clear progress indicators
     progress_bar.empty()
     status_text.empty()
@@ -404,38 +365,38 @@ def run_analysis(selected_criteria, companies):
     if display_mode == "📋 Individual Results":
         # Group by criteria for better organization
         criteria_groups = {}
-        for result in results:
-            criteria_name = result['criteria']
+        for rag_output in results:
+            criteria_name = rag_output['criteria']
             if criteria_name not in criteria_groups:
                 criteria_groups[criteria_name] = []
-            criteria_groups[criteria_name].append(result)
+            criteria_groups[criteria_name].append(rag_output)
         
         # Display results grouped by criteria
         for criteria_name, criteria_results in criteria_groups.items():
             st.markdown(f"### 📋 {criteria_name}")
             
-            for result in criteria_results:
-                status_icon = "✅" if result['status'] == 'success' else "❌"
-                with st.expander(f"{status_icon} {result['company']}", expanded=False):
-                    st.markdown(f"**Question:** {result['question']}")
+            for rag_output in criteria_results:
+                status_icon = "✅" if rag_output['status'] == 'success' else "❌"
+                with st.expander(f"{status_icon} {rag_output['company']}", expanded=False):
+                    st.markdown(f"**Question:** {rag_output['question']}")
                     st.markdown("**Analysis Result:**")
-                    if result['status'] == 'success':
-                        st.markdown(result['result'])
+                    if rag_output['status'] == 'success':
+                        st.markdown(rag_output['result'])
                     else:
-                        st.error(result['result'])
+                        st.error(rag_output['result'])
             st.markdown("---")
     
     elif display_mode == "📊 Summary Table":
         # Create summary dataframe with expected format
         summary_data = []
-        for result in results:
+        for rag_output in results:
             summary_data.append({
-                'Company': result['company'],
-                'Result': result['result'],
-                'Justification': result.get('justification', 'AI-generated analysis'),
-                'Supporting Evidence': result.get('supporting_evidence', f"Documents from {result['company']}"),
-                'Weighting': result.get('weight', 1.0),
-                'Status': '✅ Success' if result['status'] == 'success' else '❌ Error'
+                'Company': rag_output['company'],
+                'Result': rag_output['result'],
+                'Justification': rag_output.get('justification', 'AI-generated analysis'),
+                'Supporting Evidence': rag_output.get('supporting_evidence', f"Documents from {rag_output['company']}"),
+                'Weighting': rag_output.get('weight', 1.0),
+                'Status': '✅ Success' if rag_output['status'] == 'success' else '❌ Error'
             })
         
         df = pd.DataFrame(summary_data)
@@ -455,9 +416,9 @@ def run_analysis(selected_criteria, companies):
             row = {'Criteria': criteria}
             for company in unique_companies:
                 # Find result for this combination
-                result = next((r for r in results if r['criteria'] == criteria and r['company'] == company), None)
-                if result:
-                    if result['status'] == 'success':
+                rag_output = next((r for r in results if r['criteria'] == criteria and r['company'] == company), None)
+                if rag_output:
+                    if rag_output['status'] == 'success':
                         row[company] = "✅"
                     else:
                         row[company] = "❌"
@@ -476,13 +437,13 @@ def run_analysis(selected_criteria, companies):
         with col1:
             if st.button("📥 Download Results as CSV"):
                 csv_data = []
-                for result in results:
+                for rag_output in results:
                     csv_data.append({
-                        'Company': result['company'],
-                        'Result': result['result'] if result['status'] == 'success' else 'Error',
-                        'Justification': result.get('justification', 'AI-generated analysis using RAG system with Cortex Search'),
-                        'Supporting_Evidence': result.get('supporting_evidence', result.get('evidence', f"Documents from {result['company']}")),
-                        'Weighting': result.get('weight', 1.0)
+                        'Company': rag_output['company'],
+                        'Result': rag_output['result'] if rag_output['status'] == 'success' else 'Error',
+                        'Justification': rag_output.get('justification', 'AI-generated analysis using RAG system with Cortex Search'),
+                        'Supporting_Evidence': rag_output.get('supporting_evidence', rag_output.get('evidence', f"Documents from {rag_output['company']}")),
+                        'Weighting': rag_output.get('weight', 1.0)
                     })
                 
                 csv_df = pd.DataFrame(csv_data)
