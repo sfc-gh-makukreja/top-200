@@ -9,23 +9,17 @@ st.set_page_config(
 )
 
 def main():
-    # Professional header with Deloitte branding
-    col1, col2, col3 = st.columns([2, 3, 2])
+    # Professional header with Deloitte and Snowflake branding
+    col1, col3 = st.columns([1, 1])
     
     with col1:
         # Deloitte logo
         st.markdown("""
         <div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <img src="https://www2.deloitte.com/content/dam/Deloitte/global/Images/promo_images/gx-brand-deloitte-logo-black-eps.svg" 
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Deloitte_Logo.png" 
                  alt="Deloitte" style="height: 40px; margin-right: 20px;">
         </div>
         """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-        st.title("Top 200 Awards - AI Analysis Platform")
-        st.markdown("**Powered by Snowflake Cortex AI**")
-        st.markdown("</div>", unsafe_allow_html=True)
     
     with col3:
         # Snowflake logo
@@ -35,6 +29,12 @@ def main():
                  alt="Snowflake" style="height: 35px;">
         </div>
         """, unsafe_allow_html=True)
+    
+    # Centered title section
+    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    st.title("Top 200 Awards - AI Analysis Platform")
+    st.markdown("**Powered by Snowflake Cortex AI**")
+    st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("---")
     
