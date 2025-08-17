@@ -9,35 +9,36 @@ st.set_page_config(
 )
 
 def main():
-    # Professional header with Deloitte and Snowflake branding
-    col1, col3 = st.columns([1, 1])
+    # # Professional header with Deloitte and Snowflake branding
+    # col1, col3 = st.columns([1, 1])
     
-    with col1:
-        # Deloitte logo
-        st.markdown("""
-        <div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Deloitte_Logo.png" 
-                 alt="Deloitte" style="height: 50px; margin-right: 20px;">
-        </div>
-        """, unsafe_allow_html=True)
+    # with col1:
+    #     # Deloitte logo
+    #     st.markdown("""
+    #     <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            
+    #     </div>
+    #     """, unsafe_allow_html=True)
     
-    with col3:
-        # Snowflake logo
-        st.markdown("""
-        <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 20px;">
-            <img src="https://logos-world.net/wp-content/uploads/2022/11/Snowflake-Logo.png" 
-                 alt="Snowflake" style="height: 50px;">
-        </div>
-        """, unsafe_allow_html=True)
+    # with col3:
+    #     # Snowflake logo
+    #     st.markdown("""
+    #     <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 20px;">
+    #         <img src="https://logos-world.net/wp-content/uploads/2022/11/Snowflake-Logo.png" 
+    #              alt="Snowflake" style="height: 50px;">
+    #     </div>
+    #     """, unsafe_allow_html=True)
     
  
     # Professional introduction
     st.markdown("""
     <div style="text-align: center; margin: 30px 0;">
-        <h3>Comprehensive AI-powered analysis platform for evaluating company sustainability and ESG performance</h3>
+        <h3>Comprehensive AI-powered analysis platform for evaluating ESG performance</h3>
         <p style="font-size: 16px; color: #666;">
             Supporting the <a href="https://top200.co.nz/" target="_blank" style="color: #86BC25; text-decoration: none;">
-            <strong>Deloitte Top 200 Awards</strong></a> - New Zealand's premier business recognition platform
+            <strong><img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Deloitte_Logo.png" 
+                 alt="Deloitte" style="height: 50px; margin-right: 20px;"> Top 200 Awards</strong></a> - Powered by <img src="https://logos-world.net/wp-content/uploads/2022/11/Snowflake-Logo.png" 
+                 alt="Snowflake" style="height: 50px;"> Cortex AI.
         </p>
     </div>
     """, unsafe_allow_html=True)
