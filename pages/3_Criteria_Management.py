@@ -515,9 +515,12 @@ def main():
         if role_filter != "All":
             filtered_df = filtered_df[filtered_df['ROLE'] == role_filter]
         
+        # Sort by ID
+        filtered_df = filtered_df.sort_values('ID')
+        
         # Display criteria table
         for idx, row in filtered_df.iterrows():
-            with st.expander(f"📋 {row['QUESTION'][:100]}{'...' if len(row['QUESTION']) > 100 else ''}", expanded=False):
+            with st.expander(f"📋 **`{row['ID']}`** - {row['QUESTION'][:100]}{'...' if len(row['QUESTION']) > 100 else ''}", expanded=False):
                 col1, col2 = st.columns([3, 1])
                 
                 with col1:
