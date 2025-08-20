@@ -1,4 +1,21 @@
 import streamlit as st
+import base64
+
+
+def render_image(filepath: str):
+    """
+    Convert image to base64 data URL for embedding in HTML
+    filepath: path to the image. Must have a valid file extension.
+    """
+    try:
+        mime_type = filepath.split('.')[-1:][0].lower()
+        with open(filepath, "rb") as f:
+            content_bytes = f.read()
+        content_b64encoded = base64.b64encode(content_bytes).decode()
+        return f'data:image/{mime_type};base64,{content_b64encoded}'
+    except Exception as e:
+        st.error(f"Error loading image {filepath}: {e}")
+        return ""
 
 
 # Page configuration
@@ -9,11 +26,19 @@ st.set_page_config(
 )
 
 def main():
-    st.markdown("""
-    # AI-powered ESG performance analysis platform
-
-    Supporting the ![Deloitte](assets/deloitte.png) [Top 200 Awards](https://top200.co.nz/) - Powered by ![Snowflake](assets/snowflake.png)
-    """)
+    st.markdown("# AI-powered ESG performance analysis platform")
+    
+    # Render logos with base64 embedding
+    deloitte_img = render_image("assets/deloitte.png")
+    snowflake_img = render_image("assets/snowflake.png")
+    
+    st.markdown(f"""
+    <div style="margin: 20px 0;">
+        Supporting the <img src="{deloitte_img}" alt="Deloitte" style="height: 30px; vertical-align: middle;"> 
+        <a href="https://top200.co.nz/" target="_blank">Top 200 Awards</a> - Powered by 
+        <img src="{snowflake_img}" alt="Snowflake" style="height: 30px; vertical-align: middle;">
+    </div>
+    """, unsafe_allow_html=True)
     
     # Feature overview
     col1, col2, col3 = st.columns(3)
