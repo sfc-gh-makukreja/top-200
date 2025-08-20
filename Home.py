@@ -9,18 +9,11 @@ st.set_page_config(
 )
 
 def main():
- 
     st.markdown("""
-    <div style="text-align: center; margin: 30px 0;">
-        <h3>AI-powered ESG performance analysis platform</h3>
-        <p style="font-size: 16px; color: #666;">
-            Supporting the <a href="https://top200.co.nz/" target="_blank" style="color: #86BC25; text-decoration: none;">
-            <img src="assets/deloitte.png" alt="Deloitte" style="height: 50px;"> 
-            <strong>Top 200 Awards</strong></a> - Powered by 
-            <img src="assets/snowflake.png" alt="Snowflake" style="height: 50px;">
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    # AI-powered ESG performance analysis platform
+
+    Supporting the ![Deloitte](assets/deloitte.png) [Top 200 Awards](https://top200.co.nz/) - Powered by ![Snowflake](assets/snowflake.png)
+    """)
     
     # Feature overview
     col1, col2, col3 = st.columns(3)
