@@ -43,6 +43,7 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             year INTEGER,
             parsed_content_ocr VARIANT,
             file_uploaded_at TIMESTAMP,
+            file_uploaded_at_nz TIMESTAMP,
             processed_at TIMESTAMP
         )
         """
@@ -66,8 +67,11 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             -- Extract text content using Cortex OCR
             SNOWFLAKE.CORTEX.PARSE_DOCUMENT('@stage', d.relative_path) AS parsed_content_ocr,
             
-            -- File upload timestamp from stage metadata
-            d.last_modified AS file_uploaded_at,
+            -- File upload timestamp from stage metadata (convert to TIMESTAMP_NTZ)
+            d.last_modified::TIMESTAMP_NTZ AS file_uploaded_at,
+            
+            -- File upload timestamp in New Zealand timezone
+            CONVERT_TIMEZONE('UTC', 'Pacific/Auckland', d.last_modified::TIMESTAMP_NTZ) AS file_uploaded_at_nz,
             
             CURRENT_TIMESTAMP() AS processed_at
 

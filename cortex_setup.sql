@@ -105,11 +105,31 @@ CREATE TABLE IF NOT EXISTS cortex_parsed_docs (
     year INTEGER,
     parsed_content_ocr VARIANT,
     file_uploaded_at TIMESTAMP,
+    file_uploaded_at_nz TIMESTAMP,
     processed_at TIMESTAMP
 );
 
 ALTER TABLE IF EXISTS cortex_parsed_docs
     ADD COLUMN IF NOT EXISTS file_uploaded_at TIMESTAMP;
+
+ALTER TABLE IF EXISTS cortex_parsed_docs
+    ADD COLUMN IF NOT EXISTS file_uploaded_at_nz TIMESTAMP;
+
+-- Update existing records with latest upload timestamp from stage
+MERGE INTO cortex_parsed_docs p
+USING (
+    SELECT 
+        relative_path,
+        last_modified::TIMESTAMP_NTZ as file_uploaded_at,
+        CONVERT_TIMEZONE('UTC', 'Pacific/Auckland', last_modified::TIMESTAMP_NTZ) as file_uploaded_at_nz
+    FROM directory(@stage)
+    WHERE UPPER(relative_path) LIKE '%.PDF'
+) s
+ON p.relative_path = s.relative_path
+WHEN MATCHED THEN UPDATE SET
+    p.file_uploaded_at = s.file_uploaded_at,
+    p.file_uploaded_at_nz = s.file_uploaded_at_nz;
+
 
 
 -- ================================================================

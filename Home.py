@@ -36,7 +36,7 @@ def main():
     <div style="margin: 20px 0;">
         Supporting the <img src="{deloitte_img}" alt="Deloitte" style="height: 30px; vertical-align: middle;"> 
         <a href="https://top200.co.nz/" target="_blank">Top 200 Awards</a> - Powered by 
-        <img src="{snowflake_img}" alt="Snowflake" style="height: 30px; vertical-align: middle;">
+        <img src="{snowflake_img}" alt="Snowflake" style="height: 50px; vertical-align: middle;">
     </div>
     """, unsafe_allow_html=True)
     
