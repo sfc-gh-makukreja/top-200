@@ -64,7 +64,9 @@ def get_processed_files(session: Session) -> pd.DataFrame:
     try:
         result = session.sql("""
             SELECT relative_path, company_name, year, 
-                   COUNT(*) as chunk_count
+                   COUNT(*) as chunk_count,
+                   file_uploaded_at,
+                   file_uploaded_at_nz
             FROM cortex_docs_chunks_table 
             GROUP BY relative_path, company_name, year
             ORDER BY relative_path
