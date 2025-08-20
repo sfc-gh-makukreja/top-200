@@ -221,7 +221,9 @@ def main():
                     'RELATIVE_PATH': 'File Path',
                     'COMPANY_NAME': 'Company',
                     'YEAR': 'Year',
-                    'CHUNK_COUNT': 'Text Chunks'
+                    'CHUNK_COUNT': 'Text Chunks',
+                    'FILE_UPLOADED_AT': 'Uploaded At (GMT)',
+                    'FILE_UPLOADED_AT_NZ': 'Uploaded At (NZ)'
                 }),
                 use_container_width=True
             )
