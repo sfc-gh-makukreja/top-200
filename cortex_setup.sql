@@ -104,8 +104,12 @@ CREATE TABLE IF NOT EXISTS cortex_parsed_docs (
     company_name STRING,
     year INTEGER,
     parsed_content_ocr VARIANT,
+    file_uploaded_at TIMESTAMP,
     processed_at TIMESTAMP
 );
+
+ALTER TABLE IF EXISTS cortex_parsed_docs
+    ADD COLUMN IF NOT EXISTS file_uploaded_at TIMESTAMP;
 
 
 -- ================================================================
@@ -120,6 +124,7 @@ CREATE TABLE IF NOT EXISTS cortex_docs_chunks_table (
     file_url STRING,
     company_name STRING,
     year INTEGER,
+    file_uploaded_at TIMESTAMP,
     processed_at TIMESTAMP,
     ocr_content STRING,
     chunk_value_ocr STRING,

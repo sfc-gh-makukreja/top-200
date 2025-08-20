@@ -178,37 +178,34 @@ def main():
     with tab2:
         st.header("Files in Stage")
         
-        col1, col2 = st.columns([3, 1])
+    
+        if st.button("Refresh Stage", type="secondary"):
+            st.rerun()
         
-        with col2:
-            if st.button("Refresh Stage", type="secondary"):
-                st.rerun()
-            
-            st.markdown("---")
-            
-            if st.button("Process All Files", type="primary"):
-                process_all_documents(session)
+        st.markdown("---")
         
-        with col1:
-            stage_files = get_stage_files(session, STAGE_NAME)
+        if st.button("Process All Files", type="primary"):
+            process_all_documents(session)
+        
+        stage_files = get_stage_files(session, STAGE_NAME)
+        
+        if not stage_files.empty:
+            # Filter for PDF files only
+            pdf_files = stage_files[stage_files['name'].str.upper().str.endswith('.PDF')]
             
-            if not stage_files.empty:
-                # Filter for PDF files only
-                pdf_files = stage_files[stage_files['name'].str.upper().str.endswith('.PDF')]
-                
-                if not pdf_files.empty:
-                    st.dataframe(
-                        pdf_files[['name', 'size', 'last_modified']].rename(columns={
-                            'name': 'File Name',
-                            'size': 'Size (bytes)',
-                            'last_modified': 'Upload Date'
-                        }),
-                        use_container_width=True
-                    )
-                else:
-                    st.info("No PDF files found in stage")
+            if not pdf_files.empty:
+                st.dataframe(
+                    pdf_files[['name', 'size', 'last_modified']].rename(columns={
+                        'name': 'File Name',
+                        'size': 'Size (bytes)',
+                        'last_modified': 'Upload Date'
+                    }),
+                    use_container_width=True
+                )
             else:
-                st.info("No files found in stage. Upload some files first!")
+                st.info("No PDF files found in stage")
+        else:
+            st.info("No files found in stage. Upload some files first!")
     
     with tab3:
         st.header("Processed Documents")
