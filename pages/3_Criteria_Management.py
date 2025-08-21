@@ -46,7 +46,7 @@ def save_criteria(session: Session, criteria_data: Dict[str, Any], is_edit: bool
     """Save or update criteria in the database."""
     try:
         # Convert cluster string to array
-        cluster_list = [item.strip() for item in criteria_data['cluster'].split(',') if item.strip()]
+        cluster_list = [item.strip() for item in criteria_data['cluster'].replace('[', '').replace('"', '').replace(']', '').split(',') if item.strip()]
         
         if is_edit:
             # Update existing criteria - use ARRAY_CONSTRUCT for proper ARRAY type
