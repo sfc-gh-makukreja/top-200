@@ -134,8 +134,6 @@ def process_all_documents(session: Session, batch_id: str = None) -> Dict[str, A
             file_url STRING,
             company_name STRING,
             year INTEGER,
-            file_uploaded_at TIMESTAMP,
-            file_uploaded_at_nz TIMESTAMP,
             processed_at TIMESTAMP,
             ocr_content STRING,
             chunk_value_ocr STRING,
@@ -143,6 +141,8 @@ def process_all_documents(session: Session, batch_id: str = None) -> Dict[str, A
             final_chunk_ocr STRING,
             language STRING,
             chunked_at TIMESTAMP,
+            file_uploaded_at TIMESTAMP,
+            file_uploaded_at_nz TIMESTAMP,
             batch_id STRING
         )
         """
@@ -158,8 +158,7 @@ def process_all_documents(session: Session, batch_id: str = None) -> Dict[str, A
             p.file_url,
             p.company_name,
             p.year,
-            p.file_uploaded_at,
-            p.file_uploaded_at_nz,
+
             p.processed_at,
             
             -- Extract text content
@@ -175,6 +174,8 @@ def process_all_documents(session: Session, batch_id: str = None) -> Dict[str, A
             
             'English' AS language,
             CURRENT_TIMESTAMP() AS chunked_at,
+            p.file_uploaded_at,
+            p.file_uploaded_at_nz,
             p.batch_id
             
         FROM cortex_parsed_docs p,
