@@ -42,6 +42,67 @@ def get_all_criteria(session: Session) -> pd.DataFrame:
         st.error(f"Error fetching criteria: {e}")
         return pd.DataFrame()
 
+def update_related_criteria_prompts(session: Session, updated_criteria: Dict[str, Any]) -> int:
+    """Update criteria prompts for all related criteria in the same ID group."""
+    try:
+        # Extract the prefix (e.g., "A" from "A.1")
+        current_id = updated_criteria['id']
+        id_prefix = current_id.split('.')[0] if '.' in current_id else current_id[0]
+        
+        # Get all related criteria with same prefix and dynamic mode enabled
+        result = session.sql("""
+            SELECT id, question, cluster, role, instructions, output, criteria_prompt, 
+                   weight, version, active
+            FROM input_criteria
+            WHERE id LIKE ? AND id != ? AND active = true
+            ORDER BY id
+        """, [f"{id_prefix}.%", current_id]).collect()
+        
+        if not result:
+            return 0
+        
+        updated_count = 0
+        
+        # Get all questions in this group (including the updated one)
+        all_group_questions = session.sql("""
+            SELECT id, question, cluster
+            FROM input_criteria
+            WHERE id LIKE ? AND active = true
+            ORDER BY id
+        """, [f"{id_prefix}.%"]).collect()
+        
+        related_questions = [row.as_dict() for row in all_group_questions]
+        
+        # Update each related criteria's prompt
+        for row in result:
+            criteria_dict = row.as_dict()
+            
+            # Generate new prompt for this criteria
+            new_prompt = generate_criteria_prompt(
+                current_id=criteria_dict['ID'],
+                question=criteria_dict['QUESTION'],
+                cluster=criteria_dict['CLUSTER'],
+                role=criteria_dict['ROLE'],
+                instructions=criteria_dict['INSTRUCTIONS'],
+                output=criteria_dict['OUTPUT'],
+                related_questions=related_questions
+            )
+            
+            # Update the criteria prompt in database
+            session.sql("""
+                UPDATE input_criteria 
+                SET criteria_prompt = ?
+                WHERE id = ?
+            """, [new_prompt, criteria_dict['ID']]).collect()
+            
+            updated_count += 1
+        
+        return updated_count
+        
+    except Exception as e:
+        st.error(f"Error updating related criteria prompts: {e}")
+        return 0
+
 def save_criteria(session: Session, criteria_data: Dict[str, Any], is_edit: bool = False) -> bool:
     """Save or update criteria in the database."""
     try:
@@ -109,6 +170,14 @@ def save_criteria(session: Session, criteria_data: Dict[str, Any], is_edit: bool
                 criteria_data['active']
             ]
             session.sql(query, params).collect()
+        
+        # After successful save, update related criteria prompts
+        if criteria_data.get('dynamic_prompt', False):
+            updated_count = update_related_criteria_prompts(session, criteria_data)
+            if updated_count > 0:
+                action = "edited" if is_edit else "added"
+                st.success(f"✅ Also updated {updated_count} related criteria prompts in the same group!")
+                st.info(f"💡 Since you {action} a criteria with dynamic prompts, all related criteria (same ID prefix) have been updated to include the latest questions.")
         
         return True
     except Exception as e:
