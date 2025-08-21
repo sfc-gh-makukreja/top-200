@@ -183,6 +183,26 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
     clean_id = str(defaults['id']).replace('.', '_').replace(' ', '_').replace('-', '_')
     form_key = f"criteria_form_{form_mode}_{clean_id}"
     
+    # Dynamic prompt checkbox - OUTSIDE the form so it can update immediately
+    is_edit_mode = existing_data is not None
+    # Use the same clean ID for consistency
+    dynamic_prompt_key = f"dynamic_prompt_{clean_id}"
+    
+    # Initialize dynamic prompt state - default to True for both add and edit modes
+    if dynamic_prompt_key not in st.session_state:
+        st.session_state[dynamic_prompt_key] = True
+    
+    # Place checkbox outside form for immediate reactivity
+    # Get the current checkbox value from session state
+    dynamic_prompt = st.checkbox(
+        "🤖 Dynamic (auto-generate)",
+        value=st.session_state.get(dynamic_prompt_key, True),
+        help="When checked, the criteria prompt will be auto-generated from other fields"
+    )
+    
+    # Update session state with current value
+    st.session_state[dynamic_prompt_key] = dynamic_prompt
+    
     with st.form(form_key):
         # ID field at the top
         id_field = st.text_input(
@@ -226,22 +246,6 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
                 "Expected Output",
                 value=defaults['output'],
                 help="Format or type of expected output (e.g., Score 1-10, Yes/No, Percentage)"
-            )
-            
-            # Dynamic prompt checkbox - default to True for edit mode
-            is_edit_mode = existing_data is not None
-            # Use the same clean ID for consistency
-            dynamic_prompt_key = f"dynamic_prompt_{clean_id}"
-            
-            # Initialize dynamic prompt state only if not already set
-            if dynamic_prompt_key not in st.session_state:
-                st.session_state[dynamic_prompt_key] = is_edit_mode
-            
-            # Use checkbox without setting value parameter to avoid conflict
-            dynamic_prompt = st.checkbox(
-                "Dynamic (auto-generate)",
-                key=dynamic_prompt_key,
-                help="When checked, the criteria prompt will be auto-generated from other fields"
             )
             
             # Always show the text area, but disable it when dynamic mode is on
