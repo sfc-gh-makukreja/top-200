@@ -106,7 +106,8 @@ CREATE TABLE IF NOT EXISTS cortex_parsed_docs (
     parsed_content_ocr VARIANT,
     file_uploaded_at TIMESTAMP,
     file_uploaded_at_nz TIMESTAMP,
-    processed_at TIMESTAMP
+    processed_at TIMESTAMP,
+    batch_id STRING
 );
 
 ALTER TABLE IF EXISTS cortex_parsed_docs
@@ -114,6 +115,9 @@ ALTER TABLE IF EXISTS cortex_parsed_docs
 
 ALTER TABLE IF EXISTS cortex_parsed_docs
     ADD COLUMN IF NOT EXISTS file_uploaded_at_nz TIMESTAMP;
+
+ALTER TABLE IF EXISTS cortex_parsed_docs
+    ADD COLUMN IF NOT EXISTS batch_id STRING;
 
 -- Update existing records with latest upload timestamp from stage
 MERGE INTO cortex_parsed_docs p
@@ -152,7 +156,8 @@ CREATE TABLE IF NOT EXISTS cortex_docs_chunks_table (
     chunk_index_ocr INTEGER,
     final_chunk_ocr STRING,
     language STRING,
-    chunked_at TIMESTAMP
+    chunked_at TIMESTAMP,
+    batch_id STRING
 );
 
 -- Add file upload timestamp columns to chunks table
@@ -161,6 +166,9 @@ ALTER TABLE IF EXISTS cortex_docs_chunks_table
 
 ALTER TABLE IF EXISTS cortex_docs_chunks_table
     ADD COLUMN IF NOT EXISTS file_uploaded_at_nz TIMESTAMP;
+
+ALTER TABLE IF EXISTS cortex_docs_chunks_table
+    ADD COLUMN IF NOT EXISTS batch_id STRING;
 
 -- Update existing records with latest upload timestamp from stage
 MERGE INTO cortex_docs_chunks_table c

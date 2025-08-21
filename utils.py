@@ -9,9 +9,10 @@ from typing import Dict, Any, Tuple
 import time
 
 
-def process_all_documents(session: Session) -> Dict[str, Any]:
+def process_all_documents(session: Session, batch_id: str = None) -> Dict[str, Any]:
     """
     Complete document processing pipeline using Snowpark
+    If batch_id provided, process only that batch
     Returns: processing results and statistics
     """
     results = {
@@ -44,25 +45,36 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             parsed_content_ocr VARIANT,
             file_uploaded_at TIMESTAMP,
             file_uploaded_at_nz TIMESTAMP,
-            processed_at TIMESTAMP
+            processed_at TIMESTAMP,
+            batch_id STRING
         )
         """
         session.sql(create_table_sql).collect()
         
         # Insert only new files that haven't been processed yet
-        parse_sql = """
+        batch_filter = f"AND SPLIT_PART(d.relative_path, '/', 1) = '{batch_id}'" if batch_id else ""
+        
+        parse_sql = f"""
         INSERT INTO cortex_parsed_docs
         SELECT 
             d.relative_path,
             build_scoped_file_url(@stage, d.relative_path) AS file_url,
             
-            -- Use AI to extract company name from filename
+            -- Use AI to extract company name from filename (extract from actual filename, not path)
             ai_complete('snowflake-llama-3.3-70b',
-                concat('extract ONLY company name from the filename, do not return anything else, just the name or empty string: ', d.relative_path))::string as company_name,
+                concat('extract ONLY company name from the filename, do not return anything else, just the name or empty string: ', 
+                CASE WHEN d.relative_path LIKE '%/%' 
+                     THEN SPLIT_PART(d.relative_path, '/', 2)
+                     ELSE d.relative_path 
+                END))::string as company_name,
             
-            -- Use AI to extract report year from filename
+            -- Use AI to extract report year from filename (extract from actual filename, not path)
             ai_complete('snowflake-llama-3.3-70b',
-                concat('extract ONLY annual report year from the filename, do not return anything else, just the year of form YYYY or empty string: ', d.relative_path))::integer as year,
+                concat('extract ONLY annual report year from the filename, do not return anything else, just the year of form YYYY or empty string: ', 
+                CASE WHEN d.relative_path LIKE '%/%' 
+                     THEN SPLIT_PART(d.relative_path, '/', 2)
+                     ELSE d.relative_path 
+                END))::integer as year,
 
             -- Extract text content using Cortex OCR
             SNOWFLAKE.CORTEX.PARSE_DOCUMENT('@stage', d.relative_path) AS parsed_content_ocr,
@@ -73,10 +85,17 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             -- File upload timestamp in New Zealand timezone
             CONVERT_TIMEZONE('UTC', 'Pacific/Auckland', d.last_modified::TIMESTAMP_NTZ) AS file_uploaded_at_nz,
             
-            CURRENT_TIMESTAMP() AS processed_at
+            CURRENT_TIMESTAMP() AS processed_at,
+            
+            -- Extract batch_id from path (first directory in relative_path)
+            CASE WHEN d.relative_path LIKE '%/%' 
+                 THEN SPLIT_PART(d.relative_path, '/', 1)
+                 ELSE NULL 
+            END AS batch_id
 
         FROM directory(@stage) d
         WHERE UPPER(d.relative_path) LIKE '%.PDF'
+          {batch_filter}
           AND NOT EXISTS (
               SELECT 1 FROM cortex_parsed_docs p 
               WHERE p.relative_path = d.relative_path
@@ -122,19 +141,24 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             chunk_index_ocr INTEGER,
             final_chunk_ocr STRING,
             language STRING,
-            chunked_at TIMESTAMP
+            chunked_at TIMESTAMP,
+            batch_id STRING
         )
         """
         session.sql(create_chunks_table_sql).collect()
         
         # Insert chunks only for newly parsed documents
-        chunk_sql = """
+        batch_chunk_filter = f"AND p.batch_id = '{batch_id}'" if batch_id else ""
+        
+        chunk_sql = f"""
         INSERT INTO cortex_docs_chunks_table
         SELECT 
             p.relative_path,
             p.file_url,
             p.company_name,
             p.year,
+            p.file_uploaded_at,
+            p.file_uploaded_at_nz,
             p.processed_at,
             
             -- Extract text content
@@ -150,8 +174,7 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             
             'English' AS language,
             CURRENT_TIMESTAMP() AS chunked_at,
-            p.file_uploaded_at,
-            p.file_uploaded_at_nz,
+            p.batch_id
             
         FROM cortex_parsed_docs p,
              LATERAL FLATTEN(
@@ -164,6 +187,7 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
              ) f
         WHERE p.parsed_content_ocr:content::string IS NOT NULL
           AND LENGTH(p.parsed_content_ocr:content::string) > 0
+          {batch_chunk_filter}
           AND NOT EXISTS (
               SELECT 1 FROM cortex_docs_chunks_table c 
               WHERE c.relative_path = p.relative_path

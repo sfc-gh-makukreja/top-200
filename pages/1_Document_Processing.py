@@ -3,6 +3,7 @@ import pandas as pd
 from snowflake.snowpark import Session
 import time
 import os
+import datetime
 from typing import List, Dict, Any
 from utils import process_all_documents as process_docs, get_processing_summary
 
@@ -24,18 +25,22 @@ def get_snowflake_session() -> Session:
         st.error(f"Failed to connect to Snowflake: {e}")
         st.stop()
 
-def upload_file_to_stage(session: Session, uploaded_file, stage_name: str) -> bool:
-    """Upload file to Snowflake stage."""
+def generate_batch_id() -> str:
+    """Generate a unique batch ID based on current timestamp"""
+    return f"batch_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+def upload_file_to_stage(session: Session, uploaded_file, stage_name: str, batch_id: str) -> bool:
+    """Upload file to Snowflake stage with batch ID path."""
     try:
         # Save uploaded file temporarily
         temp_file_path = f"/tmp/{uploaded_file.name}"
         with open(temp_file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         
-        # Upload to stage
+        # Upload to stage with batch path: @stage/batch_id/filename
         session.file.put(
             temp_file_path,
-            f"@{stage_name}",
+            f"@{stage_name}/{batch_id}",
             auto_compress=False,
             overwrite=True
         )
@@ -80,22 +85,49 @@ def get_processed_files(session: Session) -> pd.DataFrame:
         st.error(f"Error getting processed files: {e}")
         return pd.DataFrame()
 
-def process_all_documents(session: Session) -> None:
-    """Process all PDF documents in the stage using the Python processing pipeline."""
+def get_available_batches(session: Session) -> pd.DataFrame:
+    """Get list of available batch directories from stage"""
+    try:
+        result = session.sql(f"LIST @{STAGE_NAME}").collect()
+        if result:
+            df = pd.DataFrame([row.as_dict() for row in result])
+            # Filter for directories (batch folders)
+            if 'name' in df.columns:
+                batch_dirs = df[df['name'].str.contains('batch_') & df['name'].str.endswith('/')]
+                batch_dirs['batch_id'] = batch_dirs['name'].str.replace('/', '')
+                return batch_dirs
+        return pd.DataFrame()
+    except Exception as e:
+        st.error(f"Error getting batches: {e}")
+        return pd.DataFrame()
+
+def process_documents_by_batch(session: Session, batch_id: str = None) -> None:
+    """Process PDF documents for a specific batch or all documents."""
     
     # Check if there are files to process
     stage_files = get_stage_files(session, STAGE_NAME)
-    pdf_files = stage_files[stage_files['name'].str.upper().str.endswith('.PDF')] if not stage_files.empty else pd.DataFrame()
+    
+    if batch_id:
+        # Filter files for specific batch
+        pdf_files = stage_files[
+            stage_files['name'].str.upper().str.endswith('.PDF') & 
+            stage_files['name'].str.startswith(f"{batch_id}/")
+        ] if not stage_files.empty else pd.DataFrame()
+        process_label = f"batch {batch_id}"
+    else:
+        # Process all PDF files
+        pdf_files = stage_files[stage_files['name'].str.upper().str.endswith('.PDF')] if not stage_files.empty else pd.DataFrame()
+        process_label = "all files"
     
     if pdf_files.empty:
-        st.warning("No PDF files found in stage to process")
+        st.warning(f"No PDF files found to process for {process_label}")
         return
     
-    st.info(f"📄 Found {len(pdf_files)} PDF files to process")
+    st.info(f"📄 Found {len(pdf_files)} PDF files to process for {process_label}")
     
     # Process documents using the Python processor
-    with st.spinner("Processing documents..."):
-        results = process_docs(session)
+    with st.spinner(f"Processing {process_label}..."):
+        results = process_docs(session, batch_id)
         
         if results['success']:
             st.success("✅ Processing completed successfully!")
@@ -155,6 +187,11 @@ def main():
             
             # Upload button
             if st.button("Upload to Snowflake Stage", type="primary"):
+                # Generate batch ID for this upload session
+                batch_id = generate_batch_id()
+                st.info(f"🆔 **Batch ID:** `{batch_id}`")
+                st.info(f"📁 **Upload Path:** `{STAGE_NAME}/{batch_id}/`")
+                
                 progress_bar = st.progress(0)
                 status_text = st.empty()
                 
@@ -162,11 +199,11 @@ def main():
                 total_files = len(uploaded_files)
                 
                 for i, file in enumerate(uploaded_files):
-                    status_text.text(f"Uploading {file.name}...")
+                    status_text.text(f"Uploading {file.name} to batch {batch_id}...")
                     
-                    if upload_file_to_stage(session, file, STAGE_NAME):
+                    if upload_file_to_stage(session, file, STAGE_NAME, batch_id):
                         success_count += 1
-                        st.success(f"✅ {file.name} uploaded successfully")
+                        st.success(f"✅ {file.name} uploaded successfully to batch {batch_id}")
                     else:
                         st.error(f"❌ Failed to upload {file.name}")
                     
@@ -175,20 +212,51 @@ def main():
                 status_text.text(f"Upload complete: {success_count}/{total_files} files successful")
                 
                 if success_count > 0:
+                    st.success(f"🎉 Upload completed! All files are in batch: **{batch_id}**")
                     st.balloons()
     
     with tab2:
         st.header("Files in Stage")
         
-    
-        if st.button("Refresh Stage", type="secondary"):
-            st.rerun()
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("Refresh Stage", type="secondary"):
+                st.rerun()
         
         st.markdown("---")
         
-        if st.button("Process All Files", type="primary"):
-            process_all_documents(session)
+        # Batch selection for processing
+        st.subheader("🎯 Processing Options")
         
+        # Get available batches
+        available_batches = get_available_batches(session)
+        
+        processing_mode = st.radio(
+            "Choose processing mode:",
+            ["📦 Process Specific Batch", "🌐 Process All Files"],
+            horizontal=True
+        )
+        
+        if processing_mode == "📦 Process Specific Batch":
+            if not available_batches.empty:
+                batch_options = available_batches['batch_id'].tolist()
+                selected_batch = st.selectbox(
+                    "Select batch to process:",
+                    options=batch_options,
+                    help="Choose a specific batch to process"
+                )
+                
+                if st.button("Process Selected Batch", type="primary"):
+                    process_documents_by_batch(session, selected_batch)
+            else:
+                st.warning("No batches found. Upload some files first!")
+        else:
+            if st.button("Process All Files", type="primary"):
+                process_documents_by_batch(session)
+        
+        st.markdown("---")
+        
+        # Display stage files
         stage_files = get_stage_files(session, STAGE_NAME)
         
         if not stage_files.empty:
@@ -196,14 +264,32 @@ def main():
             pdf_files = stage_files[stage_files['name'].str.upper().str.endswith('.PDF')]
             
             if not pdf_files.empty:
+                # Add batch information to the display
+                pdf_files['batch_id'] = pdf_files['name'].apply(
+                    lambda x: x.split('/')[0] if '/' in x else 'No Batch'
+                )
+                
                 st.dataframe(
-                    pdf_files[['name', 'size', 'last_modified']].rename(columns={
+                    pdf_files[['name', 'batch_id', 'size', 'last_modified']].rename(columns={
                         'name': 'File Name',
+                        'batch_id': 'Batch ID',
                         'size': 'Size (bytes)',
                         'last_modified': 'Upload Date'
                     }),
                     use_container_width=True
                 )
+                
+                # Show batch summary
+                if 'batch_id' in pdf_files.columns:
+                    batch_summary = pdf_files.groupby('batch_id').size().reset_index(name='file_count')
+                    st.subheader("📊 Batch Summary")
+                    st.dataframe(
+                        batch_summary.rename(columns={
+                            'batch_id': 'Batch ID',
+                            'file_count': 'File Count'
+                        }),
+                        use_container_width=True
+                    )
             else:
                 st.info("No PDF files found in stage")
         else:

@@ -57,26 +57,54 @@ def rag(query, company_name):
 
     return output
 
-def get_available_companies(start_date=None, end_date=None):
-    """Get list of available companies from the database, optionally filtered by upload timestamp"""
+def get_available_batches():
+    """Get list of available batch IDs from the database"""
+    try:
+        session = st.connection("snowflake").session()
+        result = session.sql("""
+            SELECT DISTINCT batch_id,
+                   COUNT(DISTINCT COMPANY_NAME) as company_count,
+                   MIN(file_uploaded_at_nz) as batch_start,
+                   MAX(file_uploaded_at_nz) as batch_end
+            FROM cortex_docs_chunks_table 
+            WHERE batch_id IS NOT NULL
+            GROUP BY batch_id
+            ORDER BY batch_start DESC
+        """).collect()
+        
+        batches = []
+        for row in result:
+            batches.append({
+                'batch_id': row['BATCH_ID'],
+                'company_count': row['COMPANY_COUNT'],
+                'batch_start': row['BATCH_START'],
+                'batch_end': row['BATCH_END'],
+                'display_name': f"{row['BATCH_ID']} ({row['COMPANY_COUNT']} companies)"
+            })
+        return batches
+    except Exception as e:
+        st.error(f"Error fetching batches: {e}")
+        return []
+
+def get_available_companies(batch_id=None):
+    """Get list of available companies from the database, optionally filtered by batch_id"""
     try:
         session = st.connection("snowflake").session()
         
-        # Base query
-        base_query = """
-            SELECT DISTINCT COMPANY_NAME 
-            FROM cortex_docs_chunks_table 
-        """
-        
-        # Add timestamp filter if dates are provided
-        if start_date and end_date:
-            query = base_query + """
-                WHERE file_uploaded_at_nz BETWEEN ? AND ?
+        if batch_id:
+            query = """
+                SELECT DISTINCT COMPANY_NAME 
+                FROM cortex_docs_chunks_table 
+                WHERE batch_id = ?
                 ORDER BY COMPANY_NAME
             """
-            result = session.sql(query, [start_date, end_date]).collect()
+            result = session.sql(query, [batch_id]).collect()
         else:
-            query = base_query + "ORDER BY COMPANY_NAME"
+            query = """
+                SELECT DISTINCT COMPANY_NAME 
+                FROM cortex_docs_chunks_table 
+                ORDER BY COMPANY_NAME
+            """
             result = session.sql(query).collect()
         
         return [row['COMPANY_NAME'] for row in result]
@@ -194,7 +222,7 @@ def main():
     # Selection mode
     selection_mode = st.radio(
         "Choose analysis mode:",
-        ["🎯 Select Specific Companies", "🌐 Run All Companies", "📅 Upload Timestamp Filter"],
+        ["🎯 Select Specific Companies", "🌐 Run All Companies", "📦 Batch Filter"],
         horizontal=True
     )
 
@@ -212,49 +240,49 @@ def main():
             st.warning("⚠️ Please select at least one company for analysis.")
             return
     
-    elif selection_mode == "📅 Upload Timestamp Filter":
-        # Date range picker for timestamp filtering
-        st.markdown("#### 📅 Select Upload Date Range")
-        col1, col2 = st.columns(2)
+    elif selection_mode == "📦 Batch Filter":
+        # Batch selection
+        st.markdown("#### 📦 Select Upload Batch")
         
-        with col1:
-            start_date = st.date_input(
-                "Start Date (NZ time):",
-                help="Select the start date for upload timestamp filter"
-            )
+        with st.spinner("Loading available batches..."):
+            available_batches = get_available_batches()
         
-        with col2:
-            end_date = st.date_input(
-                "End Date (NZ time):",
-                help="Select the end date for upload timestamp filter"
-            )
+        if not available_batches:
+            st.warning("⚠️ No batches found. Upload and process some documents first.")
+            return
         
-        if start_date and end_date:
-            if start_date > end_date:
-                st.error("❌ Start date must be before or equal to end date.")
+        # Batch selection dropdown
+        selected_batch_display = st.selectbox(
+            "Select batch:",
+            options=[b['display_name'] for b in available_batches],
+            help="Choose a batch to analyze companies from that upload session"
+        )
+        
+        if selected_batch_display:
+            # Extract batch_id from display name
+            selected_batch = next(b for b in available_batches if b['display_name'] == selected_batch_display)
+            batch_id = selected_batch['batch_id']
+            
+            # Get companies for this batch
+            with st.spinner("Loading companies from batch..."):
+                batch_companies = get_available_companies(batch_id)
+            
+            if not batch_companies:
+                st.warning(f"⚠️ No companies found in batch {batch_id}.")
                 return
             
-            # Convert dates to datetime strings for SQL query
-            start_datetime = f"{start_date} 00:00:00"
-            end_datetime = f"{end_date} 23:59:59"
+            selected_companies = batch_companies
+            st.info(f"📦 Found {len(batch_companies)} companies in batch {batch_id}")
             
-            # Get companies filtered by timestamp
-            with st.spinner("Filtering companies by upload timestamp..."):
-                filtered_companies = get_available_companies(start_datetime, end_datetime)
-            
-            if not filtered_companies:
-                st.warning(f"⚠️ No companies found with documents uploaded between {start_date} and {end_date}.")
-                return
-            
-            selected_companies = filtered_companies
-            st.info(f"📊 Found {len(filtered_companies)} companies with documents uploaded between {start_date} and {end_date}")
-            
-            # Show the filtered companies
-            with st.expander("📋 Companies in Date Range", expanded=False):
-                for company in filtered_companies:
+            # Show batch details
+            with st.expander("📋 Batch Details", expanded=False):
+                st.markdown(f"**Batch ID:** {batch_id}")
+                st.markdown(f"**Upload Period:** {selected_batch['batch_start']} - {selected_batch['batch_end']}")
+                st.markdown("**Companies:**")
+                for company in batch_companies:
                     st.markdown(f"• {company}")
         else:
-            st.warning("⚠️ Please select both start and end dates.")
+            st.warning("⚠️ Please select a batch.")
             return
             
     else:  # Run all companies
