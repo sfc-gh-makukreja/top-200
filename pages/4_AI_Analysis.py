@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import datetime
 
 # Page configuration
 st.set_page_config(
@@ -56,15 +57,28 @@ def rag(query, company_name):
 
     return output
 
-def get_available_companies():
-    """Get list of available companies from the database"""
+def get_available_companies(start_date=None, end_date=None):
+    """Get list of available companies from the database, optionally filtered by upload timestamp"""
     try:
         session = st.connection("snowflake").session()
-        result = session.sql("""
+        
+        # Base query
+        base_query = """
             SELECT DISTINCT COMPANY_NAME 
             FROM cortex_docs_chunks_table 
-            ORDER BY COMPANY_NAME
-        """).collect()
+        """
+        
+        # Add timestamp filter if dates are provided
+        if start_date and end_date:
+            query = base_query + """
+                WHERE file_uploaded_at_nz BETWEEN ? AND ?
+                ORDER BY COMPANY_NAME
+            """
+            result = session.sql(query, [start_date, end_date]).collect()
+        else:
+            query = base_query + "ORDER BY COMPANY_NAME"
+            result = session.sql(query).collect()
+        
         return [row['COMPANY_NAME'] for row in result]
     except Exception as e:
         st.error(f"Error fetching companies: {e}")
@@ -164,7 +178,6 @@ def main():
         for criteria in selected_criteria:
             st.markdown(f"**{criteria['display_name']}**")
             st.markdown(f"- **Question:** {criteria['question']}")
-            st.markdown(f"- **Prompt:** {criteria['prompt']}")
             st.markdown("---")
 
     # Company selection options
@@ -181,7 +194,7 @@ def main():
     # Selection mode
     selection_mode = st.radio(
         "Choose analysis mode:",
-        ["🎯 Select Specific Companies", "🌐 Run All Companies"],
+        ["🎯 Select Specific Companies", "🌐 Run All Companies", "📅 Upload Timestamp Filter"],
         horizontal=True
     )
 
@@ -197,6 +210,51 @@ def main():
         
         if not selected_companies:
             st.warning("⚠️ Please select at least one company for analysis.")
+            return
+    
+    elif selection_mode == "📅 Upload Timestamp Filter":
+        # Date range picker for timestamp filtering
+        st.markdown("#### 📅 Select Upload Date Range")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            start_date = st.date_input(
+                "Start Date (NZ time):",
+                help="Select the start date for upload timestamp filter"
+            )
+        
+        with col2:
+            end_date = st.date_input(
+                "End Date (NZ time):",
+                help="Select the end date for upload timestamp filter"
+            )
+        
+        if start_date and end_date:
+            if start_date > end_date:
+                st.error("❌ Start date must be before or equal to end date.")
+                return
+            
+            # Convert dates to datetime strings for SQL query
+            start_datetime = f"{start_date} 00:00:00"
+            end_datetime = f"{end_date} 23:59:59"
+            
+            # Get companies filtered by timestamp
+            with st.spinner("Filtering companies by upload timestamp..."):
+                filtered_companies = get_available_companies(start_datetime, end_datetime)
+            
+            if not filtered_companies:
+                st.warning(f"⚠️ No companies found with documents uploaded between {start_date} and {end_date}.")
+                return
+            
+            selected_companies = filtered_companies
+            st.info(f"📊 Found {len(filtered_companies)} companies with documents uploaded between {start_date} and {end_date}")
+            
+            # Show the filtered companies
+            with st.expander("📋 Companies in Date Range", expanded=False):
+                for company in filtered_companies:
+                    st.markdown(f"• {company}")
+        else:
+            st.warning("⚠️ Please select both start and end dates.")
             return
             
     else:  # Run all companies
