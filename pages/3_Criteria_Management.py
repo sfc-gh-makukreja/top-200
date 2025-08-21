@@ -177,7 +177,10 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
             else:
                 defaults['cluster'] = str(existing_data['CLUSTER'])
     
-    with st.form("criteria_form"):
+    # Create unique form key based on mode and criteria ID
+    form_key = f"criteria_form_{defaults['id']}_{('edit' if existing_data else 'add')}"
+    
+    with st.form(form_key):
         # ID field at the top
         id_field = st.text_input(
             "Criteria ID *",
@@ -240,12 +243,15 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
             # Update session state when checkbox changes
             st.session_state[dynamic_prompt_key] = dynamic_prompt
             
+            # Always show the text area, but disable it when dynamic mode is on
+            criteria_prompt_label = "Criteria Prompt *" + (" (Auto-generated)" if dynamic_prompt else "")
             criteria_prompt = st.text_area(
-                "Criteria Prompt *",
+                criteria_prompt_label,
                 value=defaults['criteria_prompt'],
-                help="The actual prompt to be used with AI models",
+                help="The actual prompt to be used with AI models" + (" - Currently in auto-generate mode" if dynamic_prompt else ""),
                 height=200,
-                disabled=dynamic_prompt
+                disabled=dynamic_prompt,
+                placeholder="Enter your criteria prompt here..." if not dynamic_prompt else "This will be auto-generated based on other fields"
             )
             
             weight = st.number_input(
