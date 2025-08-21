@@ -150,7 +150,7 @@ def generate_criteria_prompt(current_id: str, question: str, cluster: str, role:
     # Add related questions (same ID prefix)
     for rel_q in related_questions:
         if rel_q.get('ID') != current_id:  # Don't duplicate current question
-            rel_cluster = rel_q.get('CLUSTER').astype(str)
+            rel_cluster = rel_q.get('CLUSTER')
             questions_section.append(f"{rel_q.get('ID', '')} <cluster>{rel_cluster}</cluster><question>{rel_q.get('QUESTION', '')}</question>")
     
     # Build the complete prompt
