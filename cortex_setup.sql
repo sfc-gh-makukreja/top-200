@@ -125,14 +125,20 @@ USING (
     SELECT 
         relative_path,
         last_modified::TIMESTAMP_NTZ as file_uploaded_at,
-        CONVERT_TIMEZONE('UTC', 'Pacific/Auckland', last_modified::TIMESTAMP_NTZ) as file_uploaded_at_nz
+        CONVERT_TIMEZONE('UTC', 'Pacific/Auckland', last_modified::TIMESTAMP_NTZ) as file_uploaded_at_nz,
+        -- Extract batch_id from path for backwards compatibility
+        CASE WHEN relative_path LIKE '%/%' 
+             THEN SPLIT_PART(relative_path, '/', 1)
+             ELSE 'legacy_batch'  -- Default for files uploaded before batch system
+        END AS batch_id
     FROM directory(@stage)
     WHERE UPPER(relative_path) LIKE '%.PDF'
 ) s
 ON p.relative_path = s.relative_path
 WHEN MATCHED THEN UPDATE SET
     p.file_uploaded_at = s.file_uploaded_at,
-    p.file_uploaded_at_nz = s.file_uploaded_at_nz;
+    p.file_uploaded_at_nz = s.file_uploaded_at_nz,
+    p.batch_id = COALESCE(p.batch_id, s.batch_id);  -- Only update if batch_id is NULL
 
 
 
@@ -170,20 +176,76 @@ ALTER TABLE IF EXISTS cortex_docs_chunks_table
 ALTER TABLE IF EXISTS cortex_docs_chunks_table
     ADD COLUMN IF NOT EXISTS batch_id STRING;
 
+-- ================================================================
+-- SECTION 5.5: BACKWARDS COMPATIBILITY MIGRATION
+-- Migrate existing data to support batch_id system
+-- 
+-- BACKWARDS COMPATIBILITY STRATEGY:
+-- 1. Files uploaded before batch system get batch_id = 'legacy_batch'
+-- 2. Files with path structure 'batch_id/filename.pdf' extract batch_id from path
+-- 3. UI shows legacy files with friendly 'Legacy Files' label
+-- 4. All existing functionality continues to work seamlessly
+-- 5. New uploads use proper batch_YYYYMMDD_HHMMSS format
+-- ================================================================
+
+-- Migrate existing cortex_parsed_docs records without batch_id
+UPDATE cortex_parsed_docs 
+SET batch_id = CASE 
+    WHEN relative_path LIKE '%/%' THEN SPLIT_PART(relative_path, '/', 1)
+    ELSE 'legacy_batch'
+END
+WHERE batch_id IS NULL;
+
+-- Migrate existing cortex_docs_chunks_table records without batch_id
+UPDATE cortex_docs_chunks_table 
+SET batch_id = CASE 
+    WHEN relative_path LIKE '%/%' THEN SPLIT_PART(relative_path, '/', 1)
+    ELSE 'legacy_batch'
+END
+WHERE batch_id IS NULL;
+
 -- Update existing records with latest upload timestamp from stage
 MERGE INTO cortex_docs_chunks_table c
 USING (
     SELECT 
         relative_path,
         last_modified::TIMESTAMP_NTZ as file_uploaded_at,
-        CONVERT_TIMEZONE('UTC', 'Pacific/Auckland', last_modified::TIMESTAMP_NTZ) as file_uploaded_at_nz
+        CONVERT_TIMEZONE('UTC', 'Pacific/Auckland', last_modified::TIMESTAMP_NTZ) as file_uploaded_at_nz,
+        -- Extract batch_id from path for backwards compatibility
+        CASE WHEN relative_path LIKE '%/%' 
+             THEN SPLIT_PART(relative_path, '/', 1)
+             ELSE 'legacy_batch'  -- Default for files uploaded before batch system
+        END AS batch_id
     FROM directory(@stage)
     WHERE UPPER(relative_path) LIKE '%.PDF'
 ) s
 ON c.relative_path = s.relative_path
 WHEN MATCHED THEN UPDATE SET
     c.file_uploaded_at = s.file_uploaded_at,
-    c.file_uploaded_at_nz = s.file_uploaded_at_nz;
+    c.file_uploaded_at_nz = s.file_uploaded_at_nz,
+    c.batch_id = COALESCE(c.batch_id, s.batch_id);  -- Only update if batch_id is NULL
+
+-- ================================================================
+-- SECTION 5.6: PERFORMANCE OPTIMIZATION
+-- Add indexes for batch_id columns for improved query performance
+-- ================================================================
+
+-- Optional: Create indexes for batch_id columns (uncomment if needed for large datasets)
+-- CREATE INDEX IF NOT EXISTS idx_cortex_parsed_docs_batch_id 
+--     ON cortex_parsed_docs(batch_id);
+
+-- CREATE INDEX IF NOT EXISTS idx_cortex_chunks_batch_id 
+--     ON cortex_docs_chunks_table(batch_id);
+
+-- Validation query to check migration success (uncomment to run)
+-- SELECT 
+--     'Migration Validation' as check_type,
+--     batch_id,
+--     COUNT(*) as record_count,
+--     COUNT(DISTINCT company_name) as company_count
+-- FROM cortex_docs_chunks_table 
+-- GROUP BY batch_id 
+-- ORDER BY batch_id;
 
 -- ================================================================
 -- SECTION 6: CORTEX SEARCH SERVICE

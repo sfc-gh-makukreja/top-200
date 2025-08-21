@@ -88,9 +88,10 @@ def process_all_documents(session: Session, batch_id: str = None) -> Dict[str, A
             CURRENT_TIMESTAMP() AS processed_at,
             
             -- Extract batch_id from path (first directory in relative_path)
+            -- For backwards compatibility, assign 'legacy_batch' to files without batch structure
             CASE WHEN d.relative_path LIKE '%/%' 
                  THEN SPLIT_PART(d.relative_path, '/', 1)
-                 ELSE NULL 
+                 ELSE 'legacy_batch'
             END AS batch_id
 
         FROM directory(@stage) d

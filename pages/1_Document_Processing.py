@@ -68,12 +68,12 @@ def get_processed_files(session: Session) -> pd.DataFrame:
     """Get list of already processed files."""
     try:
         result = session.sql("""
-            SELECT relative_path, company_name, year, 
+            SELECT relative_path, company_name, year, batch_id,
                    COUNT(*) as chunk_count,
                    file_uploaded_at,
                    file_uploaded_at_nz
             FROM cortex_docs_chunks_table 
-            GROUP BY relative_path, company_name, year, file_uploaded_at, file_uploaded_at_nz
+            GROUP BY relative_path, company_name, year, batch_id, file_uploaded_at, file_uploaded_at_nz
             ORDER BY relative_path
         """).collect()
         
@@ -266,7 +266,7 @@ def main():
             if not pdf_files.empty:
                 # Add batch information to the display
                 pdf_files['batch_id'] = pdf_files['name'].apply(
-                    lambda x: x.split('/')[0] if '/' in x else 'No Batch'
+                    lambda x: x.split('/')[0] if '/' in x else 'legacy_batch'
                 )
                 
                 st.dataframe(
@@ -310,6 +310,7 @@ def main():
                     'COMPANY_NAME': 'Company',
                     'YEAR': 'Year',
                     'CHUNK_COUNT': 'Text Chunks',
+                    'BATCH_ID': 'Batch ID',
                     'FILE_UPLOADED_AT': 'Uploaded At (GMT)',
                     'FILE_UPLOADED_AT_NZ': 'Uploaded At (NZ)'
                 }),
