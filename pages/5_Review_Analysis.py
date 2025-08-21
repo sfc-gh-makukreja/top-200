@@ -15,11 +15,21 @@ def main():
     st.title("Review Analysis Results")
     st.markdown("### Explore and analyze your AI-powered company evaluations")
 
+    # View selection
+    st.markdown("---")
+    view_mode = st.radio(
+        "Select Analysis View:",
+        ["🔄 View by Runs", "🏢 View by Company"],
+        horizontal=True
+    )
+    st.markdown("---")
+
     try:
         session = st.connection("snowflake").session()
         
-        # Get summary statistics
-        st.markdown("## 📈 Analysis Overview")
+        if view_mode == "🔄 View by Runs":
+            # Get summary statistics
+            st.markdown("## 📈 Analysis Overview")
         
         col1, col2, col3, col4 = st.columns(4)
         
@@ -240,10 +250,212 @@ def main():
                                 mime="text/csv"
                             )
         
-        else:
-            st.info("📭 No analysis results found. Run your first analysis using the AI Analysis page!")
-            if st.button("🚀 Go to AI Analysis"):
-                st.switch_page("pages/ai_analysis.py")
+            else:
+                st.info("📭 No analysis results found. Run your first analysis using the AI Analysis page!")
+                if st.button("🚀 Go to AI Analysis"):
+                    st.switch_page("pages/ai_analysis.py")
+        
+        elif view_mode == "🏢 View by Company":
+            st.markdown("## 🏢 Company Analysis View")
+            
+            # Get all unique companies
+            try:
+                companies_result = session.sql("""
+                SELECT DISTINCT data_source as company_name
+                FROM cortex_output 
+                WHERE data_source IS NOT NULL 
+                AND TRIM(data_source) != ''
+                ORDER BY data_source
+                """).collect()
+                
+                if companies_result:
+                    company_names = [row['COMPANY_NAME'] for row in companies_result]
+                    
+                    # Company selection
+                    selected_company = st.selectbox(
+                        "Select a company to analyze:",
+                        options=[''] + company_names,
+                        format_func=lambda x: "Choose a company..." if x == '' else x
+                    )
+                    
+                    if selected_company:
+                        st.markdown(f"### 📊 Analysis Results for: **{selected_company}**")
+                        
+                        # Data scope selection
+                        data_scope = st.radio(
+                            "Select data scope:",
+                            ["📈 All Runs", "🎯 Latest Run per Criteria"],
+                            horizontal=True,
+                            help="All Runs: Shows complete history including multiple analyses of same criteria. Latest Run per Criteria: Shows only the most recent analysis for each criteria."
+                        )
+                        
+                        # Build appropriate query based on data scope
+                        if data_scope == "📈 All Runs":
+                            query = f"""
+                            SELECT 
+                                co.criteria_id as id,
+                                co.question,
+                                co.criteria_prompt,
+                                ic.weight,
+                                co.result,
+                                co.justification,
+                                co.evidence,
+                                co.run_id,
+                                CASE 
+                                    WHEN UPPER(TRIM(co.result)) = 'YES' THEN ic.weight 
+                                    ELSE 0 
+                                END as score
+                            FROM cortex_output co
+                            LEFT JOIN input_criteria ic ON co.criteria_id = ic.id 
+                                AND co.criteria_version = ic.version
+                            WHERE co.data_source = '{selected_company}'
+                            ORDER BY co.criteria_id, co.run_id DESC
+                            """
+                        else:  # Latest Run per Criteria
+                            query = f"""
+                            WITH latest_runs AS (
+                                SELECT 
+                                    criteria_id,
+                                    MAX(output:timestamp::timestamp_ntz) as latest_timestamp
+                                FROM cortex_output 
+                                WHERE data_source = '{selected_company}'
+                                GROUP BY criteria_id
+                            )
+                            SELECT 
+                                co.criteria_id as id,
+                                co.question,
+                                co.criteria_prompt,
+                                ic.weight,
+                                co.result,
+                                co.justification,
+                                co.evidence,
+                                co.run_id,
+                                CASE 
+                                    WHEN UPPER(TRIM(co.result)) = 'YES' THEN ic.weight 
+                                    ELSE 0 
+                                END as score
+                            FROM cortex_output co
+                            LEFT JOIN input_criteria ic ON co.criteria_id = ic.id 
+                                AND co.criteria_version = ic.version
+                            INNER JOIN latest_runs lr ON co.criteria_id = lr.criteria_id 
+                                AND co.output:timestamp::timestamp_ntz = lr.latest_timestamp
+                            WHERE co.data_source = '{selected_company}'
+                            ORDER BY co.criteria_id
+                            """
+                        
+                        # Execute query and display results
+                        try:
+                            results = session.sql(query).collect()
+                            
+                            if results:
+                                # Convert to DataFrame for display
+                                data = []
+                                for row in results:
+                                    data.append({
+                                        'ID': row['ID'],
+                                        'Question': row['QUESTION'],
+                                        'Criteria Prompt': row['CRITERIA_PROMPT'],
+                                        'Weight': row['WEIGHT'],
+                                        'Result': row['RESULT'],
+                                        'Justification': row['JUSTIFICATION'],
+                                        'Evidence': row['EVIDENCE'],
+                                        'Run ID': row['RUN_ID'],
+                                        'Score': row['SCORE']
+                                    })
+                                
+                                df = pd.DataFrame(data)
+                                
+                                # Get overall progress percentage
+                                try:
+                                    progress_result = session.sql("""
+                                    SELECT 
+                                        COUNT(DISTINCT co.criteria_id) as answered_criteria,
+                                        (SELECT COUNT(*) FROM input_criteria WHERE active = TRUE) as total_active_criteria
+                                    FROM cortex_output co
+                                    WHERE co.data_source = ?
+                                    """, params=[selected_company]).collect()
+                                    
+                                    if progress_result:
+                                        answered_criteria = progress_result[0]['ANSWERED_CRITERIA']
+                                        total_active_criteria = progress_result[0]['TOTAL_ACTIVE_CRITERIA']
+                                        progress_percentage = (answered_criteria / total_active_criteria * 100) if total_active_criteria > 0 else 0
+                                    else:
+                                        answered_criteria = 0
+                                        total_active_criteria = 0
+                                        progress_percentage = 0
+                                except:
+                                    answered_criteria = 0
+                                    total_active_criteria = 0
+                                    progress_percentage = 0
+                                
+                                # Display metrics
+                                col1, col2, col3, col4, col5 = st.columns(5)
+                                with col1:
+                                    st.metric("📊 Overall Progress", f"{progress_percentage:.1f}%", 
+                                             help=f"{answered_criteria} of {total_active_criteria} active criteria answered")
+                                with col2:
+                                    st.metric("📋 Total Criteria", len(df))
+                                with col3:
+                                    yes_count = len(df[df['Result'].str.upper().str.strip() == 'YES'])
+                                    st.metric("✅ Yes Results", yes_count)
+                                with col4:
+                                    total_score = df['Score'].sum()
+                                    st.metric("🎯 Total Score", f"{total_score:.1f}")
+                                with col5:
+                                    max_possible = df['Weight'].sum()
+                                    percentage = (total_score / max_possible * 100) if max_possible > 0 else 0
+                                    st.metric("📊 Score %", f"{percentage:.1f}%")
+                                
+                                st.markdown("---")
+                                
+                                # Display the data table
+                                st.markdown("### 📋 Detailed Results")
+                                st.dataframe(
+                                    df, 
+                                    use_container_width=True,
+                                    height=400
+                                )
+                                
+                                # CSV Export functionality
+                                st.markdown("### 📥 Export Data")
+                                
+                                # Prepare CSV data
+                                csv_data = df.copy()
+                                csv_data['Company'] = selected_company
+                                csv_data['Data_Scope'] = data_scope.replace("📈 ", "").replace("🎯 ", "")
+                                csv_data['Export_Timestamp'] = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
+                                
+                                # Reorder columns for CSV
+                                csv_columns = ['Company', 'ID', 'Question', 'Criteria Prompt', 'Weight', 
+                                             'Result', 'Justification', 'Evidence', 'Run ID', 'Score', 
+                                             'Data_Scope', 'Export_Timestamp']
+                                csv_data = csv_data[csv_columns]
+                                
+                                csv_string = csv_data.to_csv(index=False)
+                                
+                                # Generate filename
+                                scope_suffix = "all_runs" if data_scope == "📈 All Runs" else "latest_per_criteria"
+                                filename = f"company_analysis_{selected_company.replace(' ', '_')}_{scope_suffix}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                                
+                                st.download_button(
+                                    label="📄 Download Complete Analysis as CSV",
+                                    data=csv_string,
+                                    file_name=filename,
+                                    mime="text/csv",
+                                    help=f"Downloads all {len(df)} analysis results for {selected_company}"
+                                )
+                                
+                            else:
+                                st.info(f"📭 No analysis results found for {selected_company}")
+                                
+                        except Exception as e:
+                            st.error(f"❌ Error retrieving company data: {e}")
+                    
+                else:
+                    st.info("📭 No companies found in analysis results. Run your first analysis using the AI Analysis page!")
+                    
+            except Exception as e:
+                st.error(f"❌ Error loading companies: {e}")
                 
     except Exception as e:
         st.error(f"❌ Error loading analysis results: {e}")
