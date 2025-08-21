@@ -178,7 +178,10 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
                 defaults['cluster'] = str(existing_data['CLUSTER'])
     
     # Create unique form key based on mode and criteria ID
-    form_key = f"criteria_form_{defaults['id']}_{('edit' if existing_data else 'add')}"
+    form_mode = 'edit' if existing_data else 'add'
+    # Clean the ID to make it form-key safe
+    clean_id = str(defaults['id']).replace('.', '_').replace(' ', '_').replace('-', '_')
+    form_key = f"criteria_form_{form_mode}_{clean_id}"
     
     with st.form(form_key):
         # ID field at the top
@@ -227,21 +230,19 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
             
             # Dynamic prompt checkbox - default to True for edit mode
             is_edit_mode = existing_data is not None
-            dynamic_prompt_key = f"dynamic_prompt_{defaults['id']}"
+            # Use the same clean ID for consistency
+            dynamic_prompt_key = f"dynamic_prompt_{clean_id}"
             
-            # Initialize dynamic prompt state
+            # Initialize dynamic prompt state only if not already set
             if dynamic_prompt_key not in st.session_state:
                 st.session_state[dynamic_prompt_key] = is_edit_mode
             
+            # Use checkbox without setting value parameter to avoid conflict
             dynamic_prompt = st.checkbox(
                 "Dynamic (auto-generate)",
-                value=st.session_state[dynamic_prompt_key],
                 key=dynamic_prompt_key,
                 help="When checked, the criteria prompt will be auto-generated from other fields"
             )
-            
-            # Update session state when checkbox changes
-            st.session_state[dynamic_prompt_key] = dynamic_prompt
             
             # Always show the text area, but disable it when dynamic mode is on
             criteria_prompt_label = "Criteria Prompt *" + (" (Auto-generated)" if dynamic_prompt else "")
@@ -288,8 +289,7 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
             cancelled = st.form_submit_button("❌ Cancel")
         
         if cancelled:
-            # Clean up dynamic prompt session state
-            dynamic_prompt_key = f"dynamic_prompt_{defaults['id']}"
+            # Clean up dynamic prompt session state  
             if dynamic_prompt_key in st.session_state:
                 del st.session_state[dynamic_prompt_key]
             
@@ -486,7 +486,8 @@ def main():
         if form_data is not None:
             if save_criteria(session, form_data, is_edit=False):
                 # Clean up dynamic prompt session state
-                dynamic_prompt_key = f"dynamic_prompt_{form_data['id']}"
+                clean_form_id = str(form_data['id']).replace('.', '_').replace(' ', '_').replace('-', '_')
+                dynamic_prompt_key = f"dynamic_prompt_{clean_form_id}"
                 if dynamic_prompt_key in st.session_state:
                     del st.session_state[dynamic_prompt_key]
                     
@@ -515,7 +516,8 @@ def main():
         if form_data is not None:
             if save_criteria(session, form_data, is_edit=True):
                 # Clean up dynamic prompt session state
-                dynamic_prompt_key = f"dynamic_prompt_{form_data['id']}"
+                clean_form_id = str(form_data['id']).replace('.', '_').replace(' ', '_').replace('-', '_')
+                dynamic_prompt_key = f"dynamic_prompt_{clean_form_id}"
                 if dynamic_prompt_key in st.session_state:
                     del st.session_state[dynamic_prompt_key]
                     
