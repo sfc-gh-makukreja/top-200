@@ -18,7 +18,7 @@ def main():
         session = st.connection("snowflake").session()
         
         # Create tabs for different views
-        tab1, tab2 = st.tabs(["🔄 View by Runs", "🏢 View by Company"])
+        tab2, tab1 = st.tabs(["🏢 View by Company","🔄 View by Runs"])
         
         with tab1:
             # Get summary statistics
@@ -277,7 +277,7 @@ def main():
                         # Data scope selection
                         data_scope = st.radio(
                             "Select data scope:",
-                            ["📈 All Runs", "🎯 Latest Run per Criteria"],
+                            ["🎯 Latest Run per Criteria","📈 All Runs"],
                             horizontal=True,
                             help="All Runs: Shows complete history including multiple analyses of same criteria. Latest Run per Criteria: Shows only the most recent analysis for each criteria."
                         )

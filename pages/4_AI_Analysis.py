@@ -186,8 +186,9 @@ def main():
         # Multi-select for specific criteria
         selected_criteria_names = st.multiselect(
             "Select criteria to analyze:",
-            options=[c['display_name'] for c in available_criteria],
-            help="You can select multiple criteria for analysis"
+            options=available_criteria,
+            format_func=lambda c: f"{c['display_name']} - {c['question'][:100]}{'...' if len(c['question']) > 100 else ''}",
+            help="You can select multiple criteria for analysis. The question for each criteria is shown in the dropdown."
         )
         
         if not selected_criteria_names:
@@ -195,7 +196,7 @@ def main():
             return
         
         # Get selected criteria details
-        selected_criteria = [c for c in available_criteria if c['display_name'] in selected_criteria_names]
+        selected_criteria = selected_criteria_names
             
     else:  # Run all criteria
         selected_criteria = available_criteria
