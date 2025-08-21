@@ -135,8 +135,6 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             p.file_url,
             p.company_name,
             p.year,
-            p.file_uploaded_at,
-            p.file_uploaded_at_nz,
             p.processed_at,
             
             -- Extract text content
@@ -151,7 +149,9 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             CONCAT(p.relative_path, ': ', f.value::string) AS final_chunk_ocr,
             
             'English' AS language,
-            CURRENT_TIMESTAMP() AS chunked_at
+            CURRENT_TIMESTAMP() AS chunked_at,
+            p.file_uploaded_at,
+            p.file_uploaded_at_nz,
             
         FROM cortex_parsed_docs p,
              LATERAL FLATTEN(
