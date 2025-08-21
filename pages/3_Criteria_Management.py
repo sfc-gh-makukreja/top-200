@@ -254,117 +254,152 @@ def criteria_form(existing_data: Optional[Dict] = None, session: Session = None)
     if dynamic_prompt_key not in st.session_state:
         st.session_state[dynamic_prompt_key] = True
     
-    # Place checkbox outside form for immediate reactivity
-    # Get the current checkbox value from session state
-    dynamic_prompt = st.checkbox(
-        "🤖 Dynamic (auto-generate)",
-        value=st.session_state.get(dynamic_prompt_key, True),
-        help="When checked, the criteria prompt will be auto-generated from other fields"
-    )
-    
-    # Update session state with current value
-    st.session_state[dynamic_prompt_key] = dynamic_prompt
+    # We'll move the checkbox next to the criteria prompt text area
     
     # Fetch related questions for edit mode (only once)
     related_questions = []
     if existing_data and session:
         related_questions = get_related_questions(session, defaults['id'])
     
-    with st.form(form_key):
-        # ID field at the top
-        id_field = st.text_input(
-            "Criteria ID *",
-            value=defaults['id'],
-            help="Unique identifier for the criteria (e.g., A.1, B.2, CUSTOM_001)",
-            placeholder="A.1"
+    # Initialize form field session states for real-time updates
+    form_fields = {
+        'id': f"form_id_{clean_id}",
+        'question': f"form_question_{clean_id}",
+        'cluster': f"form_cluster_{clean_id}",
+        'role': f"form_role_{clean_id}",
+        'instructions': f"form_instructions_{clean_id}",
+        'output': f"form_output_{clean_id}",
+        'criteria_prompt': f"form_criteria_prompt_{clean_id}"
+    }
+    
+    # Initialize session state for form fields
+    for field, key in form_fields.items():
+        if key not in st.session_state:
+            st.session_state[key] = defaults[field]
+    
+    def update_criteria_prompt():
+        """Update the criteria prompt when any field changes and dynamic mode is on."""
+        if st.session_state.get(dynamic_prompt_key, False):
+            auto_generated_prompt = generate_criteria_prompt(
+                current_id=st.session_state.get(form_fields['id'], ''),
+                question=st.session_state.get(form_fields['question'], ''),
+                cluster=st.session_state.get(form_fields['cluster'], ''),
+                role=st.session_state.get(form_fields['role'], ''),
+                instructions=st.session_state.get(form_fields['instructions'], ''),
+                output=st.session_state.get(form_fields['output'], ''),
+                related_questions=related_questions
+            )
+            st.session_state[form_fields['criteria_prompt']] = auto_generated_prompt
+    
+    # Real-time fields OUTSIDE form for immediate updates
+    st.subheader("📝 Form Fields")
+    
+    # ID field at the top
+    id_field = st.text_input(
+        "Criteria ID *",
+        value=st.session_state[form_fields['id']],
+        key=form_fields['id'],
+        help="Unique identifier for the criteria (e.g., A.1, B.2, CUSTOM_001)",
+        placeholder="A.1",
+        on_change=update_criteria_prompt
+    )
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        question = st.text_area(
+            "Question *",
+            value=st.session_state[form_fields['question']],
+            key=form_fields['question'],
+            help="The main question or evaluation criteria",
+            height=100,
+            on_change=update_criteria_prompt
         )
         
-        col1, col2 = st.columns(2)
+        cluster = st.text_input(
+            "Cluster",
+            value=st.session_state[form_fields['cluster']],
+            key=form_fields['cluster'],
+            help="Comma-separated list of clusters/categories (e.g., Financial, ESG, Strategy)",
+            on_change=update_criteria_prompt
+        )
         
-        with col1:
-            question = st.text_area(
-                "Question *",
-                value=defaults['question'],
-                help="The main question or evaluation criteria",
-                height=100
-            )
-            
-            cluster = st.text_input(
-                "Cluster",
-                value=defaults['cluster'],
-                help="Comma-separated list of clusters/categories (e.g., Financial, ESG, Strategy)"
-            )
-            
-            role = st.text_input(
-                "Role",
-                value=defaults['role'],
-                help="Role or perspective for evaluation (e.g., Financial Analyst, ESG Expert)"
-            )
-            
-            instructions = st.text_area(
-                "Instructions",
-                value=defaults['instructions'],
-                help="Detailed instructions for evaluation",
-                height=150
-            )
+        role = st.text_input(
+            "Role",
+            value=st.session_state[form_fields['role']],
+            key=form_fields['role'],
+            help="Role or perspective for evaluation (e.g., Financial Analyst, ESG Expert)",
+            on_change=update_criteria_prompt
+        )
         
-        with col2:
-            output = st.text_input(
-                "Expected Output",
-                value=defaults['output'],
-                help="Format or type of expected output (e.g., Score 1-10, Yes/No, Percentage)"
-            )
-            
-            # Generate dynamic criteria prompt if checkbox is checked
-            if dynamic_prompt:
-                # Generate the prompt dynamically based on current form field values
-                auto_generated_prompt = generate_criteria_prompt(
-                    current_id=id_field,
-                    question=question,
-                    cluster=cluster,
-                    role=role,
-                    instructions=instructions,
-                    output=output,
-                    related_questions=related_questions
-                )
-                criteria_prompt_value = auto_generated_prompt
-            else:
-                criteria_prompt_value = defaults['criteria_prompt']
-            
-            # Always show the text area, but disable it when dynamic mode is on
-            criteria_prompt_label = "Criteria Prompt *" + (" (Auto-generated)" if dynamic_prompt else "")
-            criteria_prompt = st.text_area(
-                criteria_prompt_label,
-                value=criteria_prompt_value,
-                help="The actual prompt to be used with AI models" + (" - Currently in auto-generate mode" if dynamic_prompt else ""),
-                height=200,
-                disabled=dynamic_prompt,
-                placeholder="Enter your criteria prompt here..." if not dynamic_prompt else "This will be auto-generated based on other fields"
-            )
-            
-            weight = st.number_input(
-                "Weight",
-                min_value=0.0,
-                max_value=10.0,
-                value=float(defaults['weight']),
-                step=0.1,
-                help="Weight for this criteria in overall scoring"
-            )
-            
-            col2_1, col2_2 = st.columns(2)
-            with col2_1:
-                version = st.text_input(
-                    "Version",
-                    value=defaults['version'],
-                    help="Version identifier for this criteria"
-                )
-            
-            with col2_2:
-                active = st.checkbox(
-                    "Active",
-                    value=defaults['active'],
-                    help="Whether this criteria is currently active"
-                )
+        instructions = st.text_area(
+            "Instructions",
+            value=st.session_state[form_fields['instructions']],
+            key=form_fields['instructions'],
+            help="Detailed instructions for evaluation",
+            height=150,
+            on_change=update_criteria_prompt
+        )
+    
+    with col2:
+        output = st.text_input(
+            "Expected Output",
+            value=st.session_state[form_fields['output']],
+            key=form_fields['output'],
+            help="Format or type of expected output (e.g., Score 1-10, Yes/No, Percentage)",
+            on_change=update_criteria_prompt
+        )
+        
+        # Dynamic prompt checkbox - right above the text area
+        dynamic_prompt = st.checkbox(
+            "🤖 Dynamic (auto-generate)",
+            value=st.session_state.get(dynamic_prompt_key, True),
+            key=dynamic_prompt_key,
+            help="When checked, the criteria prompt will be auto-generated from other fields"
+        )
+        
+        # Update criteria prompt in session state if dynamic mode is on
+        if dynamic_prompt:
+            update_criteria_prompt()
+        
+        # Always show the text area, but disable it when dynamic mode is on
+        criteria_prompt_label = "Criteria Prompt *" + (" (Auto-generated)" if dynamic_prompt else "")
+        criteria_prompt = st.text_area(
+            criteria_prompt_label,
+            value=st.session_state[form_fields['criteria_prompt']],
+            help="The actual prompt to be used with AI models" + (" - Currently in auto-generate mode" if dynamic_prompt else ""),
+            height=200,
+            disabled=dynamic_prompt,
+            placeholder="Enter your criteria prompt here..." if not dynamic_prompt else "This will be auto-generated based on other fields"
+        )
+    
+    # Additional fields in columns
+    col3, col4 = st.columns(2)
+    with col3:
+        weight = st.number_input(
+            "Weight",
+            min_value=0.0,
+            max_value=10.0,
+            value=float(defaults['weight']),
+            step=0.1,
+            help="Weight for this criteria in overall scoring"
+        )
+        
+        version = st.text_input(
+            "Version",
+            value=defaults['version'],
+            help="Version identifier for this criteria"
+        )
+    
+    with col4:
+        active = st.checkbox(
+            "Active",
+            value=defaults['active'],
+            help="Whether this criteria is currently active"
+        )
+    
+    # Simple form with just buttons for submission
+    with st.form(form_key):
         
         # Form buttons
         col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 4])
@@ -389,25 +424,34 @@ def criteria_form(existing_data: Optional[Dict] = None, session: Session = None)
             return None
             
         if submitted:
+            # Get values from session state
+            current_id = st.session_state.get(form_fields['id'], '').strip()
+            current_question = st.session_state.get(form_fields['question'], '').strip()
+            current_cluster = st.session_state.get(form_fields['cluster'], '').strip()
+            current_role = st.session_state.get(form_fields['role'], '').strip()
+            current_instructions = st.session_state.get(form_fields['instructions'], '').strip()
+            current_output = st.session_state.get(form_fields['output'], '').strip()
+            current_criteria_prompt = st.session_state.get(form_fields['criteria_prompt'], '').strip()
+            
             # Validation
-            if not id_field.strip():
+            if not current_id:
                 st.error("Criteria ID is required")
                 return None
-            if not question.strip():
+            if not current_question:
                 st.error("Question is required")
                 return None
-            if not dynamic_prompt and not criteria_prompt.strip():
+            if not dynamic_prompt and not current_criteria_prompt:
                 st.error("Criteria Prompt is required when not in dynamic mode")
                 return None
             
             return {
-                'id': id_field.strip(),
-                'question': question.strip(),
-                'cluster': cluster.strip(),
-                'role': role.strip(),
-                'instructions': instructions.strip(),
-                'output': output.strip(),
-                'criteria_prompt': criteria_prompt.strip(),
+                'id': current_id,
+                'question': current_question,
+                'cluster': current_cluster,
+                'role': current_role,
+                'instructions': current_instructions,
+                'output': current_output,
+                'criteria_prompt': current_criteria_prompt,
                 'weight': weight,
                 'version': version.strip(),
                 'active': active,
