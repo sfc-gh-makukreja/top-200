@@ -133,7 +133,69 @@ def toggle_criteria_status(session: Session, criteria_id: str, active: bool) -> 
         st.error(f"Error updating criteria status: {e}")
         return False
 
-def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, Any]]:
+def generate_criteria_prompt(current_id: str, question: str, cluster: str, role: str, instructions: str, output: str, related_questions: List[Dict] = None) -> str:
+    """Generate the criteria prompt using the specified XML structure."""
+    if related_questions is None:
+        related_questions = []
+    
+    # Parse cluster into array format
+    cluster_list = [item.strip() for item in cluster.split(',') if item.strip()] if cluster else []
+    cluster_str = ', '.join(cluster_list)
+    
+    # Build the questions section
+    questions_section = []
+    
+    # Add current question
+    if question.strip():
+        questions_section.append(f"{current_id} <cluster>{cluster_str}</cluster><question>{question}</question>")
+    
+    # Add related questions (same ID prefix)
+    for rel_q in related_questions:
+        if rel_q.get('ID') != current_id:  # Don't duplicate current question
+            rel_cluster = ', '.join(rel_q.get('CLUSTER', [])) if rel_q.get('CLUSTER') else ''
+            questions_section.append(f"{rel_q.get('ID', '')} <cluster>{rel_cluster}</cluster><question>{rel_q.get('QUESTION', '')}</question>")
+    
+    # Build the complete prompt
+    prompt_parts = []
+    
+    if role.strip():
+        prompt_parts.append(f"<role>\n{role.strip()}\n</role>")
+    
+    if instructions.strip():
+        prompt_parts.append(f"<instructions>\n{instructions.strip()}\n</instructions>")
+    
+    if questions_section:
+        prompt_parts.append(f"<questions>\n{chr(10).join(questions_section)}\n</questions>")
+    
+    if output.strip():
+        prompt_parts.append(f"<output>\n{output.strip()}\n</output>")
+    
+    if current_id.strip():
+        prompt_parts.append(f"<task>\nAnswer question {current_id}\n</task>")
+    
+    return "\n\n".join(prompt_parts)
+
+def get_related_questions(session: Session, current_id: str) -> List[Dict]:
+    """Get related questions with the same ID prefix (e.g., A.x for A.1)."""
+    try:
+        # Extract the prefix (e.g., "A" from "A.1")
+        id_prefix = current_id.split('.')[0] if '.' in current_id else current_id[0]
+        
+        result = session.sql("""
+            SELECT id, question, cluster
+            FROM input_criteria
+            WHERE id LIKE ? AND active = true
+            ORDER BY id
+        """, [f"{id_prefix}.%"]).collect()
+        
+        if result:
+            return [row.as_dict() for row in result]
+        return []
+    except Exception as e:
+        st.error(f"Error fetching related questions: {e}")
+        return []
+
+def criteria_form(existing_data: Optional[Dict] = None, session: Session = None) -> Optional[Dict[str, Any]]:
     """Display a form for creating or editing criteria."""
     
     # Form defaults
@@ -203,6 +265,11 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
     # Update session state with current value
     st.session_state[dynamic_prompt_key] = dynamic_prompt
     
+    # Fetch related questions for edit mode (only once)
+    related_questions = []
+    if existing_data and session:
+        related_questions = get_related_questions(session, defaults['id'])
+    
     with st.form(form_key):
         # ID field at the top
         id_field = st.text_input(
@@ -248,11 +315,27 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
                 help="Format or type of expected output (e.g., Score 1-10, Yes/No, Percentage)"
             )
             
+            # Generate dynamic criteria prompt if checkbox is checked
+            if dynamic_prompt:
+                # Generate the prompt dynamically based on current form field values
+                auto_generated_prompt = generate_criteria_prompt(
+                    current_id=id_field,
+                    question=question,
+                    cluster=cluster,
+                    role=role,
+                    instructions=instructions,
+                    output=output,
+                    related_questions=related_questions
+                )
+                criteria_prompt_value = auto_generated_prompt
+            else:
+                criteria_prompt_value = defaults['criteria_prompt']
+            
             # Always show the text area, but disable it when dynamic mode is on
             criteria_prompt_label = "Criteria Prompt *" + (" (Auto-generated)" if dynamic_prompt else "")
             criteria_prompt = st.text_area(
                 criteria_prompt_label,
-                value=defaults['criteria_prompt'],
+                value=criteria_prompt_value,
                 help="The actual prompt to be used with AI models" + (" - Currently in auto-generate mode" if dynamic_prompt else ""),
                 height=200,
                 disabled=dynamic_prompt,
@@ -485,7 +568,7 @@ def main():
     if st.session_state.show_add_form and not st.session_state.edit_mode:
         st.subheader("Add New Criteria")
         
-        form_data = criteria_form()
+        form_data = criteria_form(session=session)
         
         if form_data is not None:
             if save_criteria(session, form_data, is_edit=False):
@@ -515,7 +598,7 @@ def main():
             #     st.session_state.selected_criteria = None
             #     st.rerun()
         
-        form_data = criteria_form(st.session_state.selected_criteria)
+        form_data = criteria_form(st.session_state.selected_criteria, session)
         
         if form_data is not None:
             if save_criteria(session, form_data, is_edit=True):
