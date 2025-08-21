@@ -138,21 +138,19 @@ def generate_criteria_prompt(current_id: str, question: str, cluster: str, role:
     if related_questions is None:
         related_questions = []
     
-    # Parse cluster into array format
-    cluster_list = [item.strip() for item in cluster.split(',') if item.strip()] if cluster else []
-    cluster_str = ', '.join(cluster_list)
+
     
     # Build the questions section
     questions_section = []
     
     # Add current question
     if question.strip():
-        questions_section.append(f"{current_id} <cluster>{cluster_str}</cluster><question>{question}</question>")
+        questions_section.append(f"{current_id} <cluster>{cluster}</cluster><question>{question}</question>")
     
     # Add related questions (same ID prefix)
     for rel_q in related_questions:
         if rel_q.get('ID') != current_id:  # Don't duplicate current question
-            rel_cluster = ', '.join(rel_q.get('CLUSTER', [])) if rel_q.get('CLUSTER') else ''
+            rel_cluster = rel_q.get('CLUSTER').astype(str)
             questions_section.append(f"{rel_q.get('ID', '')} <cluster>{rel_cluster}</cluster><question>{rel_q.get('QUESTION', '')}</question>")
     
     # Build the complete prompt
