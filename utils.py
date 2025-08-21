@@ -52,7 +52,7 @@ def process_all_documents(session: Session, batch_id: str = None) -> Dict[str, A
         session.sql(create_table_sql).collect()
         
         # Insert only new files that haven't been processed yet
-        batch_filter = f"AND contains(d.relative_path,'{batch_id}')" if batch_id else ""
+        batch_filter = f"AND batch_id = SPLIT_PART('{batch_id}', '/', 2)" if batch_id else ""
         
         parse_sql = f"""
         INSERT INTO cortex_parsed_docs
