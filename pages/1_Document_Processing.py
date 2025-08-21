@@ -267,7 +267,7 @@ def main():
             if not pdf_files.empty:
                 # Add batch information to the display
                 pdf_files['batch_id'] = pdf_files['name'].apply(
-                    lambda x: x.str.replace(x.str.split('/').str[-1], '') if 'batch_' in x else 'legacy_batch'
+                    lambda x: x.replace(x.split('/').str[-1], '') if 'batch_' in x else 'legacy_batch'
                 )
                 
                 st.dataframe(
