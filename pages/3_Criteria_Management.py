@@ -263,7 +263,10 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
             cancelled = st.form_submit_button("❌ Cancel")
         
         if cancelled:
-            st.session_state.edit_mode = False
+            if st.session_state.edit_mode:
+                st.session_state.edit_mode = False
+            else:
+                st.session_state.show_add_form = False
             st.session_state.selected_criteria = None
             st.rerun()
             return None
