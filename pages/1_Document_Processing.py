@@ -114,7 +114,7 @@ def process_documents_by_batch(session: Session, batch_id: str = None) -> None:
         # Filter files for specific batch
         pdf_files = stage_files[
             stage_files['name'].str.upper().str.endswith('.PDF') & 
-            stage_files['name'].str.startswith(f"{batch_id}/")
+            stage_files['name'].str.contains(f"{batch_id}/")
         ] if not stage_files.empty else pd.DataFrame()
         process_label = f"batch {batch_id}"
     else:
