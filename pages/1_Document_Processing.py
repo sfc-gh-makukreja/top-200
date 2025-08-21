@@ -93,9 +93,11 @@ def get_available_batches(session: Session) -> pd.DataFrame:
             df = pd.DataFrame([row.as_dict() for row in result])
             # Filter for directories (batch folders)
             if 'name' in df.columns:
-                batch_dirs = df[df['name'].str.contains('batch_') & df['name'].str.lower().str.endswith('.pdf')]
-                batch_dirs['batch_id'] = batch_dirs['name'].str.replace(batch_dirs['name'].str.split('/').str[-1], '')
-                
+                batch_dirs = df[df['name'].str.lower().str.endswith('.pdf')]
+                batch_dirs['batch_id'] = batch_dirs['name'].apply(
+                    lambda x: x.replace(x.split('/')[-1], '') if 'batch_' in x else 'legacy_batch'
+                )
+                batch_dirs.drop_duplicates(subset='batch_id', keep='first', inplace=True)
                 return batch_dirs
         return pd.DataFrame()
     except Exception as e:
@@ -267,7 +269,7 @@ def main():
             if not pdf_files.empty:
                 # Add batch information to the display
                 pdf_files['batch_id'] = pdf_files['name'].apply(
-                    lambda x: x.replace(x.split('/').str[-1], '') if 'batch_' in x else 'legacy_batch'
+                    lambda x: x.replace(x.split('/')[-1], '') if 'batch_' in x else 'legacy_batch'
                 )
                 
                 st.dataframe(
