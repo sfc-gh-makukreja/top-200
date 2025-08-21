@@ -142,9 +142,10 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             -- Extract text content
             p.parsed_content_ocr:content::string AS ocr_content,
             
-            -- Chunk metadata
+            -- Chunk metadata - f.value contains the text chunk
             f.value::string AS chunk_value_ocr,
-            f.index AS chunk_index_ocr,
+            -- Use ROW_NUMBER() to generate proper numeric index instead of f.index
+            ROW_NUMBER() OVER (PARTITION BY p.relative_path ORDER BY f.seq) AS chunk_index_ocr,
             
             -- Final searchable chunks
             CONCAT(p.relative_path, ': ', f.value::string) AS final_chunk_ocr,
