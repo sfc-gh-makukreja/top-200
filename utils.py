@@ -149,7 +149,7 @@ def process_all_documents(session: Session, batch_id: str = None) -> Dict[str, A
         session.sql(create_chunks_table_sql).collect()
         
         # Insert chunks only for newly parsed documents
-        batch_chunk_filter = f"AND p.batch_id = '{batch_id}'" if batch_id else ""
+        batch_chunk_filter = f"AND p.batch_id = SPLIT_PART('{batch_id}', '/', 2)" if batch_id else ""
         
         chunk_sql = f"""
         INSERT INTO cortex_docs_chunks_table
