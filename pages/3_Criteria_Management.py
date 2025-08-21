@@ -263,6 +263,9 @@ def criteria_form(existing_data: Optional[Dict] = None) -> Optional[Dict[str, An
             cancelled = st.form_submit_button("❌ Cancel")
         
         if cancelled:
+            st.session_state.edit_mode = False
+            st.session_state.selected_criteria = None
+            st.rerun()
             return None
             
         if submitted:
@@ -453,12 +456,12 @@ def main():
         st.subheader(f"✏️ Edit Criteria: {st.session_state.selected_criteria.get('ID', 'Unknown')}")
         
         # Add cancel button
-        col_edit1, col_edit2 = st.columns([1, 4])
-        with col_edit1:
-            if st.button("❌ Cancel Edit"):
-                st.session_state.edit_mode = False
-                st.session_state.selected_criteria = None
-                st.rerun()
+        # col_edit1, col_edit2 = st.columns([1, 4])
+        # with col_edit1:
+            # if st.button("❌ Cancel Edit"):
+            #     st.session_state.edit_mode = False
+            #     st.session_state.selected_criteria = None
+            #     st.rerun()
         
         form_data = criteria_form(st.session_state.selected_criteria)
         
