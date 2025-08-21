@@ -33,11 +33,9 @@ def get_all_criteria(session: Session) -> pd.DataFrame:
         
         if result:
             df = pd.DataFrame([row.as_dict() for row in result])
-            # Convert cluster array to comma-separated string for display
+            # Convert cluster to string
             if 'CLUSTER' in df.columns:
-                df['CLUSTER_DISPLAY'] = df['CLUSTER'].apply(
-                    lambda x: ', '.join(x) if x and isinstance(x, list) else ''
-                )
+                df['CLUSTER'] = df['CLUSTER'].astype(str)
             return df
         return pd.DataFrame()
     except Exception as e:
@@ -527,7 +525,7 @@ def main():
                     st.markdown(f"**ID:** `{row['ID']}`")
                     st.markdown(f"**Question:** {row['QUESTION']}")
                     st.markdown(f"**Role:** {row['ROLE'] or 'Not specified'}")
-                    st.markdown(f"**Cluster:** {row.get('CLUSTER_DISPLAY', 'Not specified')}")
+                    st.markdown(f"**Cluster:** {row.get('CLUSTER', 'Not specified')}")
                     st.markdown(f"**Instructions:** {row['INSTRUCTIONS'] or 'Not specified'}")
                     st.markdown(f"**Expected Output:** {row['OUTPUT'] or 'Not specified'}")
                     st.markdown(f"**Weight:** {row['WEIGHT']}")
