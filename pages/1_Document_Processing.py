@@ -68,7 +68,7 @@ def get_processed_files(session: Session) -> pd.DataFrame:
                    file_uploaded_at,
                    file_uploaded_at_nz
             FROM cortex_docs_chunks_table 
-            GROUP BY relative_path, company_name, year
+            GROUP BY relative_path, company_name, year, file_uploaded_at, file_uploaded_at_nz
             ORDER BY relative_path
         """).collect()
         

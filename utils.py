@@ -115,6 +115,7 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             company_name STRING,
             year INTEGER,
             file_uploaded_at TIMESTAMP,
+            file_uploaded_at_nz TIMESTAMP,
             processed_at TIMESTAMP,
             ocr_content STRING,
             chunk_value_ocr STRING,
@@ -135,6 +136,7 @@ def process_all_documents(session: Session) -> Dict[str, Any]:
             p.company_name,
             p.year,
             p.file_uploaded_at,
+            p.file_uploaded_at_nz,
             p.processed_at,
             
             -- Extract text content

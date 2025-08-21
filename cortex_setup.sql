@@ -145,6 +145,7 @@ CREATE TABLE IF NOT EXISTS cortex_docs_chunks_table (
     company_name STRING,
     year INTEGER,
     file_uploaded_at TIMESTAMP,
+    file_uploaded_at_nz TIMESTAMP,
     processed_at TIMESTAMP,
     ocr_content STRING,
     chunk_value_ocr STRING,
@@ -153,6 +154,28 @@ CREATE TABLE IF NOT EXISTS cortex_docs_chunks_table (
     language STRING,
     chunked_at TIMESTAMP
 );
+
+-- Add file upload timestamp columns to chunks table
+ALTER TABLE IF EXISTS cortex_docs_chunks_table
+    ADD COLUMN IF NOT EXISTS file_uploaded_at TIMESTAMP;
+
+ALTER TABLE IF EXISTS cortex_docs_chunks_table
+    ADD COLUMN IF NOT EXISTS file_uploaded_at_nz TIMESTAMP;
+
+-- Update existing records with latest upload timestamp from stage
+MERGE INTO cortex_docs_chunks_table c
+USING (
+    SELECT 
+        relative_path,
+        last_modified::TIMESTAMP_NTZ as file_uploaded_at,
+        CONVERT_TIMEZONE('UTC', 'Pacific/Auckland', last_modified::TIMESTAMP_NTZ) as file_uploaded_at_nz
+    FROM directory(@stage)
+    WHERE UPPER(relative_path) LIKE '%.PDF'
+) s
+ON c.relative_path = s.relative_path
+WHEN MATCHED THEN UPDATE SET
+    c.file_uploaded_at = s.file_uploaded_at,
+    c.file_uploaded_at_nz = s.file_uploaded_at_nz;
 
 -- ================================================================
 -- SECTION 6: CORTEX SEARCH SERVICE
