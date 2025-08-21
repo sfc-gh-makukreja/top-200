@@ -93,8 +93,9 @@ def get_available_batches(session: Session) -> pd.DataFrame:
             df = pd.DataFrame([row.as_dict() for row in result])
             # Filter for directories (batch folders)
             if 'name' in df.columns:
-                batch_dirs = df[df['name'].str.contains('batch_') & df['name'].str.endswith('/')]
-                batch_dirs['batch_id'] = batch_dirs['name'].str.replace('/', '')
+                batch_dirs = df[df['name'].str.contains('batch_') & df['name'].str.lower().str.endswith('.pdf')]
+                batch_dirs['batch_id'] = batch_dirs['name'].str.replace(batch_dirs['name'].str.split('/').str[-1], '')
+                
                 return batch_dirs
         return pd.DataFrame()
     except Exception as e:
